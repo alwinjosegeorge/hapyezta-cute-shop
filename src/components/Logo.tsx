@@ -102,7 +102,7 @@ export function Logo({
       <div
         className={`transition-all duration-300 ease-in-out origin-top ${
           isCollapsed
-            ? "max-h-0 opacity-0 scale-0 mb-0 pointer-events-none lg:max-h-16 lg:opacity-100 lg:scale-100 lg:mb-1.5 lg:pointer-events-auto overflow-hidden"
+            ? "max-h-0 opacity-0 scale-0 mb-0 pointer-events-none overflow-hidden"
             : "max-h-16 opacity-100 scale-100 mb-1.5"
         }`}
       >
@@ -117,7 +117,7 @@ export function Logo({
         <div
           className={`transition-all duration-300 ease-in-out origin-bottom ${
             isCollapsed
-              ? "max-h-0 opacity-0 scale-0 mt-0 pointer-events-none lg:max-h-8 lg:opacity-100 lg:scale-100 lg:mt-1.5 lg:pointer-events-auto overflow-hidden"
+              ? "max-h-0 opacity-0 scale-0 mt-0 pointer-events-none overflow-hidden"
               : "max-h-8 opacity-100 scale-100 mt-1.5"
           }`}
         >

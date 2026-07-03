@@ -60,7 +60,7 @@ export function Header() {
         {/* Desktop Static Logo (Statically positioned in-flow, always visible on desktop) */}
         <div className="hidden lg:block">
           <Link to="/" className="hover:opacity-90 transition block">
-            <Logo size="sm" withSlogan={!isScrolled} collapseOnScroll={false} className="items-start" />
+            <Logo size="sm" withSlogan={!isScrolled} collapseOnScroll={true} isScrolled={isScrolled} className="items-start" />
           </Link>
         </div>
 
