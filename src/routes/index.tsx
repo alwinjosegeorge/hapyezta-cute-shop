@@ -9,15 +9,7 @@ import hero from "@/assets/hero.jpg";
 import heroSlide1 from "@/assets/hero_slide_1.png";
 import heroSlide2 from "@/assets/hero_slide_2.png";
 import heroSlide3 from "@/assets/hero_slide_3.png";
-import { products } from "@/lib/products";
-import c1 from "@/assets/c1.jpg";
-import c2 from "@/assets/c2.jpg";
-import c3 from "@/assets/c3.jpg";
-import c4 from "@/assets/c4.jpg";
-import c5 from "@/assets/c5.jpg";
-import c6 from "@/assets/c6.jpg";
-import c7 from "@/assets/c7.jpg";
-import c8 from "@/assets/c8.jpg";
+import { useProducts } from "@/context/ProductContext";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,18 +22,6 @@ export const Route = createFileRoute("/")({
   }),
   component: Index,
 });
-
-const categories = [
-  { name: "Cute Stationery", img: c1, color: "var(--teal)" },
-  { name: "Pencil Cases", img: c2, color: "var(--coral)" },
-  { name: "Journal Supplies", img: c3, color: "var(--yellow)" },
-  { name: "Sling & School Bags", img: c4, color: "var(--purple)" },
-  { name: "Bottles & Tumblers", img: c5, color: "var(--orange)" },
-  { name: "Lunch Box", img: c6, color: "var(--coral)" },
-  { name: "Gift Sets", img: c7, color: "var(--teal)" },
-  { name: "Makeup Pouches", img: c8, color: "var(--purple)" },
-];
-
 
 const testimonials = [
   {
@@ -65,6 +45,7 @@ const testimonials = [
 ];
 
 function Index() {
+  const { products, categories } = useProducts();
   const { cartCount, openCart, addToCart } = useCart();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const heroImages = [hero, heroSlide1, heroSlide2, heroSlide3];

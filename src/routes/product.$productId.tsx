@@ -12,7 +12,7 @@ import {
   AlertCircle,
   Sparkles,
 } from "lucide-react";
-import { getProductById, products } from "@/lib/products";
+import { useProducts } from "@/context/ProductContext";
 import { Header } from "@/components/Header";
 import { MarqueeBanner } from "@/components/MarqueeBanner";
 import { Footer } from "@/components/Footer";
@@ -25,7 +25,8 @@ export const Route = createFileRoute("/product/$productId")({
 function ProductDetails() {
   const { cartCount, openCart, addToCart } = useCart();
   const { productId } = Route.useParams();
-  const product = getProductById(productId);
+  const { products } = useProducts();
+  const product = products.find((p) => p.id === productId);
   const router = useRouter();
   const navigate = useNavigate();
 

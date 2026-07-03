@@ -9,11 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ControlpanelRouteImport } from './routes/controlpanel'
+import { Route as Control_panelRouteImport } from './routes/control_panel'
+import { Route as ControlPanelRouteImport } from './routes/control-panel'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 
+const ControlpanelRoute = ControlpanelRouteImport.update({
+  id: '/controlpanel',
+  path: '/controlpanel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Control_panelRoute = Control_panelRouteImport.update({
+  id: '/control_panel',
+  path: '/control_panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ControlPanelRoute = ControlPanelRouteImport.update({
+  id: '/control-panel',
+  path: '/control-panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -39,12 +57,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/control-panel': typeof ControlPanelRoute
+  '/control_panel': typeof Control_panelRoute
+  '/controlpanel': typeof ControlpanelRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/control-panel': typeof ControlPanelRoute
+  '/control_panel': typeof Control_panelRoute
+  '/controlpanel': typeof ControlpanelRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRoutesById {
@@ -52,25 +76,74 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/control-panel': typeof ControlPanelRoute
+  '/control_panel': typeof Control_panelRoute
+  '/controlpanel': typeof ControlpanelRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/checkout' | '/contact' | '/product/$productId'
+  fullPaths:
+    | '/'
+    | '/checkout'
+    | '/contact'
+    | '/control-panel'
+    | '/control_panel'
+    | '/controlpanel'
+    | '/product/$productId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkout' | '/contact' | '/product/$productId'
-  id: '__root__' | '/' | '/checkout' | '/contact' | '/product/$productId'
+  to:
+    | '/'
+    | '/checkout'
+    | '/contact'
+    | '/control-panel'
+    | '/control_panel'
+    | '/controlpanel'
+    | '/product/$productId'
+  id:
+    | '__root__'
+    | '/'
+    | '/checkout'
+    | '/contact'
+    | '/control-panel'
+    | '/control_panel'
+    | '/controlpanel'
+    | '/product/$productId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  ControlPanelRoute: typeof ControlPanelRoute
+  Control_panelRoute: typeof Control_panelRoute
+  ControlpanelRoute: typeof ControlpanelRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/controlpanel': {
+      id: '/controlpanel'
+      path: '/controlpanel'
+      fullPath: '/controlpanel'
+      preLoaderRoute: typeof ControlpanelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/control_panel': {
+      id: '/control_panel'
+      path: '/control_panel'
+      fullPath: '/control_panel'
+      preLoaderRoute: typeof Control_panelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/control-panel': {
+      id: '/control-panel'
+      path: '/control-panel'
+      fullPath: '/control-panel'
+      preLoaderRoute: typeof ControlPanelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -106,6 +179,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  ControlPanelRoute: ControlPanelRoute,
+  Control_panelRoute: Control_panelRoute,
+  ControlpanelRoute: ControlpanelRoute,
   ProductProductIdRoute: ProductProductIdRoute,
 }
 export const routeTree = rootRouteImport

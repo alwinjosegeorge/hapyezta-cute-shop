@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Home, Search, LayoutGrid, ShoppingCart, User, X, ShoppingBag, ArrowRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useCart } from "@/context/CartContext";
-import { products } from "@/lib/products";
+import { useProducts } from "@/context/ProductContext";
 import {
   Dialog,
   DialogContent,
@@ -16,20 +16,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-// Dummy product search pool (matches products in index.tsx)
-const searchPool = [
-  { name: "Kawaii Mini Clay Cupcakes", price: "₹499", tag: "Sale", desc: "Cute miniature clay cupcakes for decoration." },
-  { name: "Kawaii Duck Organizer", price: "₹799", tag: "New", desc: "Desk organizer shaped like a cute duck." },
-  { name: "Kawaii Bear Pen Holder", price: "₹399", desc: "Keep your pastel pens safe and neat." },
-  { name: "Kawaii Puppy Lunch Bag", price: "₹699", tag: "Sale", desc: "Insulated lunch bag with puppy face." },
-  { name: "Kawaii Water Bottle", price: "₹549", desc: "Double-walled cute tumbler with straw." },
-  { name: "Aesthetic Sticker Pack", price: "₹199", desc: "Journaling sticker sheet pack (5 sheets)." },
-  { name: "Girly Hearts Stickers", price: "₹299", desc: "Holographic heart borders and shapes." },
-  { name: "Lavender Journal Kit", price: "₹599", tag: "Hot", desc: "Purple notebook, stickers, washitape set." },
-];
-
 export function MobileNav() {
   const { cartCount, openCart, isCartOpen } = useCart();
+  const { products } = useProducts();
   const [activeTab, setActiveTab] = useState("home");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -38,8 +27,10 @@ export function MobileNav() {
   // Search logic
   const [searchQuery, setSearchQuery] = useState("");
   const filteredProducts = searchQuery
-    ? searchPool.filter((p) =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ? products.filter((p) =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
 
@@ -215,7 +206,7 @@ export function MobileNav() {
                   <div className="space-y-2.5">
                     {filteredProducts.map((p) => (
                       <div
-                        key={p.name}
+                        key={p.id}
                         className="p-3 bg-white rounded-2xl flex items-center justify-between border border-purple/10 hover:border-coral/30 transition-all shadow-sm"
                       >
                         <div className="flex-1 pr-3">
@@ -230,7 +221,7 @@ export function MobileNav() {
                             )}
                           </div>
                           <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
-                            {p.desc}
+                            {p.description}
                           </p>
                           <span className="text-xs font-bold text-purple mt-1 block">
                             {p.price}
@@ -238,13 +229,12 @@ export function MobileNav() {
                         </div>
                         <button
                           onClick={() => {
-                            const matched = products.find((prod) => prod.name === p.name);
                             addToCart({
-                              id: matched?.id || p.name.toLowerCase().replace(/\s+/g, "-"),
+                              id: p.id,
                               name: p.name,
                               price: parseFloat(p.price.replace(/[^\d.]/g, "")),
                               priceString: p.price,
-                              img: matched?.img || "",
+                              img: p.img,
                             });
                             setIsSearchOpen(false);
                             openCart();
