@@ -32,10 +32,10 @@ export function Header() {
       >
         {/* Mobile Centered Full Logo (Cross-fades out on scroll) */}
         <div
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden transition-all duration-300 ease-in-out origin-center ${
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 lg:hidden transition-all duration-300 ease-in-out origin-center ${
             isScrolled
-              ? "opacity-0 scale-75 pointer-events-none"
-              : "opacity-100 scale-100 pointer-events-auto"
+              ? "opacity-0 scale-75 translate-y-2 pointer-events-none"
+              : "-translate-y-1/2 opacity-100 scale-100 pointer-events-auto"
           }`}
         >
           <Link to="/" className="hover:opacity-90 transition block">
