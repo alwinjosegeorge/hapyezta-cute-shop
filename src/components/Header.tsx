@@ -52,7 +52,6 @@ export function Header() {
           }`}
         >
           <Link to="/" className="hover:opacity-90 transition flex items-center gap-2">
-            <LogoIcon className="w-8 h-8" />
             <LogoText className="text-xl font-bold tracking-tight leading-none" />
           </Link>
         </div>
