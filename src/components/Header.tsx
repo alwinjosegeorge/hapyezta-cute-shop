@@ -43,9 +43,9 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Mobile Left Compact Logo (Cross-fades in on scroll) */}
+        {/* Mobile Centered Compact Logo (Cross-fades in on scroll) */}
         <div
-          className={`absolute left-4 top-1/2 -translate-y-1/2 lg:hidden transition-all duration-300 ease-in-out origin-left ${
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden transition-all duration-300 ease-in-out origin-center ${
             isScrolled
               ? "opacity-100 scale-100 pointer-events-auto"
               : "opacity-0 scale-75 pointer-events-none"
