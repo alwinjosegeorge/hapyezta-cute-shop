@@ -16,6 +16,70 @@ export const Route = createFileRoute("/control-panel")({
   component: ControlPanel,
 });
 
+// Custom Cute Select component that matches the theme of the website
+function CuteSelect({
+  value,
+  onChange,
+  options,
+  placeholder = "Select Option",
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((opt) => opt.value === value);
+
+  return (
+    <div className="relative">
+      {/* Trigger */}
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 rounded-2xl bg-cream/35 border-2 border-purple/10 focus-within:border-coral outline-none text-sm transition font-body flex items-center justify-between cursor-pointer select-none bg-white/50"
+      >
+        <span className={selectedOption ? "text-foreground font-medium" : "text-foreground/40"}>
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <span className={`text-xs transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+          🌸
+        </span>
+      </div>
+
+      {/* Backdrop for closing */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-10 cursor-default"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Options List */}
+      {isOpen && (
+        <div className="absolute z-20 w-full mt-2 bg-white rounded-2xl border-2 border-yellow/20 shadow-lg max-h-60 overflow-y-auto animate-fade-in p-1">
+          {options.map((opt) => (
+            <div
+              key={opt.value}
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition cursor-pointer flex items-center justify-between select-none ${
+                value === opt.value
+                  ? "bg-purple text-white"
+                  : "text-purple hover:bg-cream hover:text-coral"
+              }`}
+            >
+              <span>{opt.label}</span>
+              {value === opt.value && <span className="text-xs">✨</span>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ControlPanel() {
   const { categories, addProduct } = useProducts();
 
@@ -222,17 +286,11 @@ function ControlPanel() {
                   {/* Category */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-purple uppercase tracking-wider block">Category *</label>
-                    <select
+                    <CuteSelect
                       value={prodCategory}
-                      onChange={(e) => setProdCategory(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl bg-cream/35 border-2 border-purple/10 focus:border-coral outline-none text-sm transition font-body cursor-pointer"
-                    >
-                      {categories.map((c) => (
-                        <option key={c.name} value={c.name}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setProdCategory(val)}
+                      options={categories.map((c) => ({ value: c.name, label: c.name }))}
+                    />
                   </div>
                 </div>
 
@@ -267,16 +325,16 @@ function ControlPanel() {
                   {/* Tag */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-purple uppercase tracking-wider block">Product Tag</label>
-                    <select
+                    <CuteSelect
                       value={prodTag}
-                      onChange={(e) => setProdTag(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl bg-cream/35 border-2 border-purple/10 focus:border-coral outline-none text-sm transition font-body cursor-pointer"
-                    >
-                      <option value="">None</option>
-                      <option value="Sale">Sale</option>
-                      <option value="New">New</option>
-                      <option value="Hot">Hot</option>
-                    </select>
+                      onChange={(val) => setProdTag(val)}
+                      options={[
+                        { value: "", label: "None" },
+                        { value: "Sale", label: "Sale" },
+                        { value: "New", label: "New" },
+                        { value: "Hot", label: "Hot" },
+                      ]}
+                    />
                   </div>
                 </div>
 
