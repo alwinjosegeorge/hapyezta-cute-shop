@@ -601,7 +601,6 @@ function ControlPanel() {
               <div className="space-y-4">
                 {filteredOrders.length > 0 ? (
                   filteredOrders.map((order) => {
-                    const isExpanded = expandedOrderId === order.id;
                     const itemsCount = order.items.reduce((acc: number, item: any) => acc + item.quantity, 0);
 
                     return (
@@ -610,10 +609,7 @@ function ControlPanel() {
                         className="bg-white rounded-[2rem] border-2 border-yellow/20 shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg"
                       >
                         {/* Summary Header */}
-                        <div
-                          onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
-                          className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer select-none hover:bg-cream/10"
-                        >
+                        <div className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-purple/5 bg-cream/5">
                           <div className="space-y-1 flex-1">
                             <div className="flex flex-wrap items-center gap-3">
                               <span className="font-display text-lg text-purple font-bold">{order.id}</span>
@@ -646,11 +642,8 @@ function ControlPanel() {
                               )}
                             </div>
 
-                            {/* Dropdown Chevron */}
+                            {/* Delete Action */}
                             <div className="flex items-center gap-2">
-                              <button className="p-2 text-purple/60 hover:text-purple rounded-full hover:bg-cream transition">
-                                {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                              </button>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -665,104 +658,102 @@ function ControlPanel() {
                           </div>
                         </div>
 
-                        {/* Expanded details */}
-                        {isExpanded && (
-                          <div className="border-t border-purple/5 bg-cream/15 p-6 space-y-6 animate-fade-in font-body text-sm">
-                            <div className="grid md:grid-cols-2 gap-6">
-                              {/* Customer and Shipping Details */}
-                              <div className="bg-white p-5 rounded-2xl border border-purple/5 shadow-sm space-y-4">
-                                <h3 className="font-display text-base text-purple flex items-center gap-2 border-b border-purple/5 pb-2">
-                                  <MapPin className="w-4 h-4 text-coral" /> Customer & Shipping Info
-                                </h3>
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-foreground/50 font-semibold w-16">Email:</span>
-                                    <span className="text-purple flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> {order.customerEmail}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-foreground/50 font-semibold w-16">Phone:</span>
-                                    <span className="text-purple flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {order.customerPhone}</span>
-                                  </div>
-                                  <div className="flex items-start gap-2 pt-2 border-t border-purple/5">
-                                    <span className="text-foreground/50 font-semibold w-16 shrink-0 mt-0.5">Address:</span>
-                                    <div className="text-foreground/80 leading-relaxed">
-                                      <p>{order.shippingAddress.street}</p>
-                                      <p>{order.shippingAddress.city}, {order.shippingAddress.state} – {order.shippingAddress.pincode}</p>
-                                    </div>
-                                  </div>
+                        {/* Always visible details */}
+                        <div className="p-6 space-y-6 font-body text-sm">
+                          <div className="grid md:grid-cols-2 gap-6">
+                            {/* Customer and Shipping Details */}
+                            <div className="bg-white p-5 rounded-2xl border border-purple/5 shadow-sm space-y-4">
+                              <h3 className="font-display text-base text-purple flex items-center gap-2 border-b border-purple/5 pb-2">
+                                <MapPin className="w-4 h-4 text-coral" /> Customer & Shipping Info
+                              </h3>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-foreground/50 font-semibold w-16">Email:</span>
+                                  <span className="text-purple flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> {order.customerEmail}</span>
                                 </div>
-                              </div>
-
-                              {/* Order & Status Action Card */}
-                              <div className="bg-white p-5 rounded-2xl border border-purple/5 shadow-sm space-y-4">
-                                <h3 className="font-display text-base text-purple flex items-center gap-2 border-b border-purple/5 pb-2">
-                                  ⚡ Update Order Status
-                                </h3>
-                                <div className="space-y-3">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-foreground/60 font-semibold">Current Status:</span>
-                                    <span className="capitalize font-bold text-purple">{order.status}</span>
-                                  </div>
-                                  <div className="flex gap-2 pt-2">
-                                    {[
-                                      { statusName: "pending", label: "Pending", style: "border-orange/20 text-orange hover:bg-orange/5 bg-orange/5" },
-                                      { statusName: "shipped", label: "Shipped", style: "border-purple/20 text-purple hover:bg-purple/5 bg-purple/5" },
-                                      { statusName: "delivered", label: "Delivered", style: "border-teal/20 text-teal hover:bg-teal/5 bg-teal/5" },
-                                    ].map((btn) => (
-                                      <button
-                                        key={btn.statusName}
-                                        onClick={() => handleUpdateOrderStatus(order.id, btn.statusName)}
-                                        className={`flex-1 py-2 px-1 text-center rounded-xl border text-xs font-bold transition cursor-pointer ${
-                                          order.status === btn.statusName
-                                            ? "bg-purple text-white border-transparent"
-                                            : btn.style
-                                        }`}
-                                      >
-                                        {btn.label}
-                                      </button>
-                                    ))}
-                                  </div>
-                                  <div className="flex justify-between border-t border-purple/5 pt-3 text-xs text-foreground/50">
-                                    <span>Method: {order.paymentMethod === "online" ? "UPI/Online" : "Cash on Delivery"}</span>
-                                    <span>Shipping: ₹{order.shippingCost}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-foreground/50 font-semibold w-16">Phone:</span>
+                                  <span className="text-purple flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {order.customerPhone}</span>
+                                </div>
+                                <div className="flex items-start gap-2 pt-2 border-t border-purple/5">
+                                  <span className="text-foreground/50 font-semibold w-16 shrink-0 mt-0.5">Address:</span>
+                                  <div className="text-foreground/80 leading-relaxed">
+                                    <p>{order.shippingAddress.street}</p>
+                                    <p>{order.shippingAddress.city}, {order.shippingAddress.state} – {order.shippingAddress.pincode}</p>
                                   </div>
                                 </div>
                               </div>
                             </div>
 
-                            {/* Ordered Items List */}
+                            {/* Order & Status Action Card */}
                             <div className="bg-white p-5 rounded-2xl border border-purple/5 shadow-sm space-y-4">
                               <h3 className="font-display text-base text-purple flex items-center gap-2 border-b border-purple/5 pb-2">
-                                <ListOrdered className="w-4 h-4 text-teal" /> Placed Items
+                                ⚡ Update Order Status
                               </h3>
-                              <div className="space-y-3 divide-y divide-purple/5">
-                                {order.items.map((item: any, idx: number) => (
-                                  <div key={idx} className="flex items-center justify-between gap-4 pt-3 first:pt-0">
-                                    <div className="flex items-center gap-3">
-                                      <img
-                                        src={item.img}
-                                        alt={item.name}
-                                        className="w-12 h-12 object-cover rounded-xl border border-purple/10 bg-cream/10 shrink-0"
-                                      />
-                                      <div>
-                                        <h4 className="font-semibold text-purple line-clamp-1">{item.name}</h4>
-                                        {item.color && (
-                                          <span className="text-[10px] bg-purple/10 text-purple px-2 py-0.5 rounded-full font-bold">
-                                            Color: {item.color}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="text-right shrink-0">
-                                      <span className="text-xs text-foreground/60">{item.priceString} x {item.quantity}</span>
-                                      <p className="font-bold text-coral mt-0.5">₹{item.price * item.quantity}</p>
-                                    </div>
-                                  </div>
-                                ))}
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-foreground/60 font-semibold">Current Status:</span>
+                                  <span className="capitalize font-bold text-purple">{order.status}</span>
+                                </div>
+                                <div className="flex gap-2 pt-2">
+                                  {[
+                                    { statusName: "pending", label: "Pending", style: "border-orange/20 text-orange hover:bg-orange/5 bg-orange/5" },
+                                    { statusName: "shipped", label: "Shipped", style: "border-purple/20 text-purple hover:bg-purple/5 bg-purple/5" },
+                                    { statusName: "delivered", label: "Delivered", style: "border-teal/20 text-teal hover:bg-teal/5 bg-teal/5" },
+                                  ].map((btn) => (
+                                    <button
+                                      key={btn.statusName}
+                                      onClick={() => handleUpdateOrderStatus(order.id, btn.statusName)}
+                                      className={`flex-1 py-2 px-1 text-center rounded-xl border text-xs font-bold transition cursor-pointer ${
+                                        order.status === btn.statusName
+                                          ? "bg-purple text-white border-transparent"
+                                          : btn.style
+                                      }`}
+                                    >
+                                      {btn.label}
+                                    </button>
+                                  ))}
+                                </div>
+                                <div className="flex justify-between border-t border-purple/5 pt-3 text-xs text-foreground/50">
+                                  <span>Method: {order.paymentMethod === "online" ? "UPI/Online" : "Cash on Delivery"}</span>
+                                  <span>Shipping: ₹{order.shippingCost}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        )}
+
+                          {/* Ordered Items List */}
+                          <div className="bg-white p-5 rounded-2xl border border-purple/5 shadow-sm space-y-4">
+                            <h3 className="font-display text-base text-purple flex items-center gap-2 border-b border-purple/5 pb-2">
+                              <ListOrdered className="w-4 h-4 text-teal" /> Placed Items
+                            </h3>
+                            <div className="space-y-3 divide-y divide-purple/5">
+                              {order.items.map((item: any, idx: number) => (
+                                <div key={idx} className="flex items-center justify-between gap-4 pt-3 first:pt-0">
+                                  <div className="flex items-center gap-3">
+                                    <img
+                                      src={item.img}
+                                      alt={item.name}
+                                      className="w-12 h-12 object-cover rounded-xl border border-purple/10 bg-cream/10 shrink-0"
+                                    />
+                                    <div>
+                                      <h4 className="font-semibold text-purple line-clamp-1">{item.name}</h4>
+                                      {item.color && (
+                                        <span className="text-[10px] bg-purple/10 text-purple px-2 py-0.5 rounded-full font-bold">
+                                          Color: {item.color}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="text-right shrink-0">
+                                    <span className="text-xs text-foreground/60">{item.priceString} x {item.quantity}</span>
+                                    <p className="font-bold text-coral mt-0.5">₹{item.price * item.quantity}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     );
                   })
