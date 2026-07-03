@@ -129,8 +129,48 @@ function Checkout() {
       return;
     }
 
-    // Process order
-    generateOrderDetails();
+    // Generate details
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const newOrderId = `HAP-2026-${randomNum}`;
+
+    const dateOptions: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+    const today = new Date();
+    const minDelivery = new Date(today);
+    minDelivery.setDate(today.getDate() + 3);
+    const maxDelivery = new Date(today);
+    maxDelivery.setDate(today.getDate() + 5);
+    const minStr = minDelivery.toLocaleDateString("en-IN", dateOptions);
+    const maxStr = maxDelivery.toLocaleDateString("en-IN", dateOptions);
+    const year = maxDelivery.getFullYear();
+    const newDateRange = `${minStr} – ${maxStr}, ${year}`;
+
+    setOrderId(newOrderId);
+    setDeliveryDateRange(newDateRange);
+
+    // Create Order Object
+    const orderData = {
+      id: newOrderId,
+      date: new Date().toISOString(),
+      deliveryEstimate: newDateRange,
+      customerName: name,
+      customerEmail: email,
+      customerPhone: phone,
+      shippingAddress: { street, city, state: selectedState, pincode },
+      paymentMethod,
+      items: cartItems,
+      shippingCost,
+      totalAmount: grandTotal,
+      status: "pending"
+    };
+
+    // Save to localStorage
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem("hapyezta-orders") || "[]");
+      localStorage.setItem("hapyezta-orders", JSON.stringify([orderData, ...existingOrders]));
+    } catch (error) {
+      console.error("Failed to save order to localStorage:", error);
+    }
+
     setIsSubmitted(true);
   };
 
