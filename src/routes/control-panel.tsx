@@ -157,8 +157,51 @@ function ControlPanel() {
   useEffect(() => {
     try {
       const storedOrders = localStorage.getItem("hapyezta-orders");
-      if (storedOrders) {
+      if (storedOrders && JSON.parse(storedOrders).length > 0) {
         setOrders(JSON.parse(storedOrders));
+      } else {
+        // Pre-populate with a cute mock order for display
+        const mockOrder = {
+          id: "HAP-2026-8921",
+          date: new Date().toISOString(),
+          deliveryEstimate: "Jul 12 – Jul 15, 2026",
+          customerName: "Sakura Chan",
+          customerEmail: "sakura@kawaii.com",
+          customerPhone: "+91 98765 43210",
+          shippingAddress: {
+            street: "Flat 4B, Cherry Blossom Apartments, Marine Drive",
+            city: "Kochi",
+            state: "Kerala",
+            pincode: "682031",
+          },
+          paymentMethod: "online",
+          items: [
+            {
+              id: "p1",
+              name: "Adorable Bunny Desk Organizer",
+              price: 499,
+              priceString: "₹499",
+              img: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&q=80&w=400",
+              color: "Sweet Pink",
+              quantity: 1,
+            },
+            {
+              id: "p2",
+              name: "Kawaii Milk Box Pencil Case",
+              price: 299,
+              priceString: "₹299",
+              img: "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&q=80&w=400",
+              color: "Strawberry Milk",
+              quantity: 2,
+            }
+          ],
+          shippingCost: 60,
+          totalAmount: 1157,
+          status: "pending",
+        };
+        const defaultOrders = [mockOrder];
+        setOrders(defaultOrders);
+        localStorage.setItem("hapyezta-orders", JSON.stringify(defaultOrders));
       }
     } catch (e) {
       console.error("Failed to load orders:", e);
