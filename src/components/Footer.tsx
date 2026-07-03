@@ -173,7 +173,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-6 text-center text-xs text-foreground/50">
-          © {new Date().getFullYear()}, HAPYEZTA | All rights reserved
+          © {new Date().getFullYear()} Hapyezta · Made by Codexora
         </div>
       </div>
 
@@ -223,7 +223,7 @@ export function Footer() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-[#E8DDF8]/20 text-center text-xs text-[#E8DDF8]/70">
-          © {new Date().getFullYear()} Hapyezta · Made with 💛 in India
+          © {new Date().getFullYear()} Hapyezta · Made by Codexora
         </div>
       </div>
     </footer>
