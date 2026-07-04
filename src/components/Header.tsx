@@ -31,15 +31,15 @@ export function Header() {
         }`}
       >
         {/* Mobile Centered Logo (Always visible, collapses icon on scroll) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden transition-all duration-300 ease-in-out">
-          <Link to="/" className="hover:opacity-90 transition block">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden transition-all duration-300 ease-in-out flex items-center">
+          <Link to="/" className="hover:opacity-90 transition flex items-center">
             <Logo size="sm" withSlogan={true} collapseOnScroll={true} isScrolled={isScrolled} className="items-center" />
           </Link>
         </div>
 
         {/* Desktop Static Logo (Statically positioned in-flow, always visible on desktop) */}
-        <div className="hidden lg:block">
-          <Link to="/" className="hover:opacity-90 transition block">
+        <div className="hidden lg:flex items-center">
+          <Link to="/" className="hover:opacity-90 transition flex items-center">
             <Logo size="sm" withSlogan={true} collapseOnScroll={true} isScrolled={isScrolled} className="items-start" />
           </Link>
         </div>

@@ -97,7 +97,7 @@ export function Logo({
   const isCollapsed = collapseOnScroll && isScrolled;
 
   return (
-    <div className={`inline-flex flex-col items-center justify-center transition-all duration-300 ${className}`}>
+    <div className={`flex flex-col items-center justify-center transition-all duration-300 ${className}`}>
       {/* Logo Icon on Top */}
       <div
         className={`transition-all duration-300 ease-in-out origin-top ${
