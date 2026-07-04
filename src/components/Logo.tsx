@@ -114,7 +114,13 @@ export function Logo({
 
       {/* Slogan */}
       {withSlogan && (
-        <div className="max-h-8 opacity-100 scale-100 mt-1.5 transition-all duration-300">
+        <div
+          className={`transition-all duration-300 ease-in-out origin-bottom ${
+            isCollapsed
+              ? "max-h-0 opacity-0 scale-0 mt-0 pointer-events-none overflow-hidden"
+              : "max-h-8 opacity-100 scale-100 mt-1.5"
+          }`}
+        >
           <span
             className={`block uppercase font-bold text-orange leading-none select-none text-center ${sloganSizes[size]}`}
             style={{ fontFamily: "var(--font-display)" }}
