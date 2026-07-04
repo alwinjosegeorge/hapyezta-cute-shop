@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, ShoppingBag, Heart, User } from "lucide-react";
 import { Logo, LogoIcon, LogoText } from "./Logo";
 import { useCart } from "@/context/CartContext";
@@ -11,6 +11,28 @@ export function Header() {
   const { favoriteItems, openFavorites } = useFavorites();
   const { openAccount } = useAccount();
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
+
+  const scrollToSection = (id: string) => {
+    if (window.location.pathname !== "/") {
+      navigate({ to: "/", hash: id });
+    } else {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  // On mount: if URL has a hash, scroll to that section
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.replace("#", "");
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    }
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -51,10 +73,10 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-foreground/80">
           <Link to="/products" className="hover:text-coral transition" activeProps={{ className: "text-coral font-bold" }}>Shop</Link>
-          <a href="/#featured" onClick={(e) => { e.preventDefault(); document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-coral transition cursor-pointer">New In</a>
-          <a href="/#collection" onClick={(e) => { e.preventDefault(); document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-coral transition cursor-pointer">Stationery</a>
-          <a href="/#collection" onClick={(e) => { e.preventDefault(); document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-coral transition cursor-pointer">Gift Sets</a>
-          <a href="/#reviews" onClick={(e) => { e.preventDefault(); document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-coral transition cursor-pointer">Reviews</a>
+          <a href="/#featured" onClick={(e) => { e.preventDefault(); scrollToSection("featured"); }} className="hover:text-coral transition cursor-pointer">New In</a>
+          <a href="/#collection" onClick={(e) => { e.preventDefault(); scrollToSection("collection"); }} className="hover:text-coral transition cursor-pointer">Stationery</a>
+          <a href="/#collection" onClick={(e) => { e.preventDefault(); scrollToSection("collection"); }} className="hover:text-coral transition cursor-pointer">Gift Sets</a>
+          <a href="/#reviews" onClick={(e) => { e.preventDefault(); scrollToSection("reviews"); }} className="hover:text-coral transition cursor-pointer">Reviews</a>
         </nav>
 
         {/* Right buttons (stays right-aligned on mobile via ml-auto) */}
