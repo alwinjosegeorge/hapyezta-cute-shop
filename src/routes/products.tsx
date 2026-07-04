@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, Heart, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -8,7 +8,16 @@ import { useProducts } from "@/context/ProductContext";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 
+type ProductSearch = {
+  category?: string;
+};
+
 export const Route = createFileRoute("/products")({
+  validateSearch: (search: Record<string, unknown>): ProductSearch => {
+    return {
+      category: search.category ? String(search.category) : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "All Kawaii Products - Hapyezta" },
@@ -80,12 +89,19 @@ function CuteSelect({
 }
 
 function ProductsList() {
+  const search = Route.useSearch();
+  const initialCategory = search.category || "All";
   const { products, categories } = useProducts();
   const { openCart, addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState("default");
+
+  // Sync category search parameter to state when it changes
+  useEffect(() => {
+    setSelectedCategory(search.category || "All");
+  }, [search.category]);
 
   // Filtering products
   const filteredProducts = products.filter((p) => {

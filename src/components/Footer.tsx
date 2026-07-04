@@ -197,12 +197,14 @@ export function Footer() {
             </p>
           </div>
           <div>
-            <div className="font-display text-lg mb-3 text-white font-semibold">Shop</div>
+            <div className="font-display text-lg mb-3 text-white font-semibold">
+              <Link to="/products" className="hover:text-[#FFB84D] transition">Shop</Link>
+            </div>
             <ul className="space-y-2 text-sm text-[#E8DDF8]">
-              <li><Link to="/" hash="collection" className="hover:text-[#FFB84D] transition">Stationery</Link></li>
-              <li><Link to="/" hash="collection" className="hover:text-[#FFB84D] transition">Journals</Link></li>
-              <li><Link to="/" hash="collection" className="hover:text-[#FFB84D] transition">Gift sets</Link></li>
-              <li><Link to="/" hash="collection" className="hover:text-[#FFB84D] transition">Bottles</Link></li>
+              <li><Link to="/products" search={{ category: "Cute Stationery" }} className="hover:text-[#FFB84D] transition">Stationery</Link></li>
+              <li><Link to="/products" search={{ category: "Journal Supplies" }} className="hover:text-[#FFB84D] transition">Journals</Link></li>
+              <li><Link to="/products" search={{ category: "Gift Sets" }} className="hover:text-[#FFB84D] transition">Gift sets</Link></li>
+              <li><Link to="/products" search={{ category: "Bottles & Tumblers" }} className="hover:text-[#FFB84D] transition">Bottles</Link></li>
             </ul>
           </div>
           <div>
