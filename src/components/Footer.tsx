@@ -435,7 +435,7 @@ export function Footer() {
                 <span className="text-lg">⚡</span>
                 <div>
                   <h4 className="font-bold text-purple text-xs uppercase tracking-wider mb-1">Pan-India Delivery</h4>
-                  <p>Usually takes 3-7 business days depending on location. Free shipping for all orders above ₹499!</p>
+                  <p>Usually takes 3-7 business days depending on location.</p>
                 </div>
               </div>
               <div className="flex gap-3">
