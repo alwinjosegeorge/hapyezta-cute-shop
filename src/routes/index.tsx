@@ -48,7 +48,16 @@ function Index() {
   const { products, categories } = useProducts();
   const { cartCount, openCart, addToCart } = useCart();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const [activeFeaturedTab, setActiveFeaturedTab] = useState<"best" | "new">("best");
   const heroImages = [hero, heroSlide1, heroSlide2, heroSlide3];
+
+  const displayedProducts = products.filter((p) => {
+    if (activeFeaturedTab === "best") {
+      return p.tag === "Sale" || p.tag === "Hot" || p.id === "kawaii-bear-pen-holder" || p.id === "kawaii-water-bottle";
+    } else {
+      return p.tag === "New" || p.id === "aesthetic-sticker-pack" || p.id === "girly-hearts-stickers" || p.id === "lavender-journal-kit";
+    }
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -159,16 +168,36 @@ function Index() {
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 gap-4">
             <div>
               <div className="text-teal font-semibold tracking-widest text-xs uppercase">Featured</div>
-              <h2 className="font-display text-4xl sm:text-5xl text-purple mt-2">Best Sellers</h2>
+              <h2 className="font-display text-4xl sm:text-5xl text-purple mt-2">
+                {activeFeaturedTab === "best" ? "Best Sellers" : "New In"}
+              </h2>
             </div>
             <div className="flex gap-2">
-              <button className="px-5 py-2 rounded-full bg-purple text-white font-semibold text-sm">Best Sellers</button>
-              <button className="px-5 py-2 rounded-full border-2 border-purple/30 text-purple font-semibold text-sm">New In</button>
+              <button
+                onClick={() => setActiveFeaturedTab("best")}
+                className={`px-5 py-2 rounded-full font-semibold text-sm transition cursor-pointer ${
+                  activeFeaturedTab === "best"
+                    ? "bg-purple text-white"
+                    : "border-2 border-purple/30 text-purple hover:bg-purple/5"
+                }`}
+              >
+                Best Sellers
+              </button>
+              <button
+                onClick={() => setActiveFeaturedTab("new")}
+                className={`px-5 py-2 rounded-full font-semibold text-sm transition cursor-pointer ${
+                  activeFeaturedTab === "new"
+                    ? "bg-purple text-white"
+                    : "border-2 border-purple/30 text-purple hover:bg-purple/5"
+                }`}
+              >
+                New In
+              </button>
             </div>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {products.map((p) => (
+            {displayedProducts.map((p) => (
               <article key={p.name} className="bg-cream rounded-3xl overflow-hidden border-2 border-transparent hover:border-coral transition group flex flex-col justify-between">
                 <div className="relative aspect-square overflow-hidden bg-white">
                   {p.tag && (
