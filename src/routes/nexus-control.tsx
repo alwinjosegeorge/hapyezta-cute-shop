@@ -10,7 +10,7 @@ export const Route = createFileRoute("/nexus-control")({
   head: () => ({
     meta: [
       { title: "Control Panel - Hapyezta" },
-      { name: "description", content: "Hapyezta Admin Control Panel. Add new products & track orders." },
+      { name: "description", content: "Hapyezta Admin Control Panel. Add new products & view orders." },
     ],
   }),
   component: ControlPanel,
@@ -450,7 +450,7 @@ function ControlPanel() {
                     : "text-purple bg-white border-2 border-purple/10 hover:border-purple/30"
                 }`}
               >
-                <Package className="w-4 h-4" /> Track Orders
+                <Package className="w-4 h-4" /> Orders
                 {orders.filter(o => o.status === "pending").length > 0 && (
                   <span className="bg-coral text-white text-[10px] w-5 h-5 rounded-full grid place-items-center animate-pulse">
                     {orders.filter(o => o.status === "pending").length}
