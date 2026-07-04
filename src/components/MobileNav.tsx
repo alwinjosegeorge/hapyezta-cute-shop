@@ -32,6 +32,62 @@ export function MobileNav() {
   const [trackingResult, setTrackingResult] = useState<any | null>(null);
   const [trackError, setTrackError] = useState("");
 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [profileName, setProfileName] = useState(() => {
+    try {
+      const stored = localStorage.getItem("hapyezta-profile");
+      if (stored) return JSON.parse(stored).name || "Ananya Sharma";
+    } catch {}
+    return "Ananya Sharma";
+  });
+  const [profileEmoji, setProfileEmoji] = useState(() => {
+    try {
+      const stored = localStorage.getItem("hapyezta-profile");
+      if (stored) return JSON.parse(stored).emoji || "🌸";
+    } catch {}
+    return "🌸";
+  });
+  const [profileEmail, setProfileEmail] = useState(() => {
+    try {
+      const stored = localStorage.getItem("hapyezta-profile");
+      if (stored) return JSON.parse(stored).email || "ananya@kawaii.com";
+    } catch {}
+    return "ananya@kawaii.com";
+  });
+  const [profilePhone, setProfilePhone] = useState(() => {
+    try {
+      const stored = localStorage.getItem("hapyezta-profile");
+      if (stored) return JSON.parse(stored).phone || "+91 98765 43210";
+    } catch {}
+    return "+91 98765 43210";
+  });
+
+  const [editName, setEditName] = useState(profileName);
+  const [editEmoji, setEditEmoji] = useState(profileEmoji);
+  const [editEmail, setEditEmail] = useState(profileEmail);
+  const [editPhone, setEditPhone] = useState(profilePhone);
+
+  const handleSaveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileName(editName);
+    setProfileEmoji(editEmoji);
+    setProfileEmail(editEmail);
+    setProfilePhone(editPhone);
+
+    localStorage.setItem(
+      "hapyezta-profile",
+      JSON.stringify({
+        name: editName,
+        emoji: editEmoji,
+        email: editEmail,
+        phone: editPhone,
+      })
+    );
+
+    setIsSettingsOpen(false);
+    alert("Profile settings saved successfully! 🌸");
+  };
+
   const handleTrackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setTrackError("");
@@ -315,10 +371,10 @@ export function MobileNav() {
             {/* User Profile Card */}
             <div className="bg-white rounded-3xl p-5 border border-purple/10 shadow-sm text-center">
               <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-coral to-purple grid place-items-center text-3xl mb-3 border-4 border-cream shadow-md select-none animate-bounce">
-                🌸
+                {profileEmoji}
               </div>
               <h3 className="font-display text-lg text-purple font-semibold">
-                Ananya Sharma
+                {profileName}
               </h3>
               <p className="text-xs text-muted-foreground">Member since May 2026</p>
 
@@ -353,7 +409,14 @@ export function MobileNav() {
               </button>
 
               <button
-                onClick={() => alert("Opening profile settings...")}
+                onClick={() => {
+                  setEditName(profileName);
+                  setEditEmoji(profileEmoji);
+                  setEditEmail(profileEmail);
+                  setEditPhone(profilePhone);
+                  setIsAccountOpen(false);
+                  setIsSettingsOpen(true);
+                }}
                 className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-cream hover:text-coral transition font-semibold text-purple cursor-pointer border-none bg-transparent"
               >
                 ⚙️ Account Settings
@@ -457,6 +520,104 @@ export function MobileNav() {
                   </div>
                 </div>
               )}
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Account Settings Modal */}
+      {isSettingsOpen && (
+        <Dialog open={isSettingsOpen} onOpenChange={(open) => {
+          if (!open) {
+            setIsSettingsOpen(false);
+          }
+        }}>
+          <DialogContent className="w-[92vw] sm:max-w-[400px] rounded-[2rem] sm:rounded-3xl p-6 bg-cream border-2 border-yellow/30 max-h-[85vh] overflow-y-auto">
+            <DialogHeader className="pb-2">
+              <DialogTitle className="font-display text-2xl text-purple text-center">
+                ⚙️ Profile Settings
+              </DialogTitle>
+            </DialogHeader>
+
+            <form onSubmit={handleSaveSettings} className="space-y-4 mt-2">
+              {/* Emoji avatar selector */}
+              <div>
+                <label className="block text-xs font-bold text-purple uppercase tracking-wider mb-2 text-left">
+                  Choose Avatar Icon
+                </label>
+                <div className="grid grid-cols-5 gap-2 p-3 bg-white rounded-2xl border border-purple/10">
+                  {["🌸", "👧", "🐱", "🦊", "🌈", "🦄", "🐼", "🧸", "🍦", "✨"].map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => setEditEmoji(emoji)}
+                      className={`text-2xl p-2 rounded-xl hover:bg-cream transition cursor-pointer flex items-center justify-center border-2 ${
+                        editEmoji === emoji ? "border-coral bg-cream/50" : "border-transparent"
+                      }`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Name field */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-purple uppercase tracking-wider text-left">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-full bg-white border-2 border-purple/10 focus:border-coral outline-none text-foreground font-body text-sm transition"
+                />
+              </div>
+
+              {/* Email field */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-purple uppercase tracking-wider text-left">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-full bg-white border-2 border-purple/10 focus:border-coral outline-none text-foreground font-body text-sm transition"
+                />
+              </div>
+
+              {/* Phone field */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-purple uppercase tracking-wider text-left">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-full bg-white border-2 border-purple/10 focus:border-coral outline-none text-foreground font-body text-sm transition"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="flex-1 py-3 rounded-full border-2 border-purple/20 text-purple font-semibold hover:bg-purple/5 transition text-xs font-display uppercase tracking-wider cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-full bg-orange hover:bg-orange/95 text-white font-bold transition-all shadow-[0_4px_0_0_#c4513f] hover:translate-y-0.5 hover:shadow-[0_1px_0_0_#c4513f] cursor-pointer text-xs font-display uppercase tracking-wider"
+                >
+                  Save
+                </button>
+              </div>
             </form>
           </DialogContent>
         </Dialog>
