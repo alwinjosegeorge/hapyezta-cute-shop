@@ -17,6 +17,67 @@ export const Route = createFileRoute("/products")({
   component: ProductsList,
 });
 
+// Custom Cute Select component that matches the theme of the website
+function CuteSelect({
+  value,
+  onChange,
+  options,
+  placeholder = "Select Option",
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((opt) => opt.value === value);
+
+  return (
+    <div className="relative w-full md:w-56">
+      {/* Trigger */}
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-5 py-3.5 rounded-full border-2 border-yellow/20 focus:border-orange bg-cream/10 text-sm outline-none transition font-body flex items-center justify-between cursor-pointer select-none text-purple font-semibold"
+      >
+        <span>
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <span className={`text-[10px] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+          🌸
+        </span>
+      </div>
+
+      {/* Backdrop for closing */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-10 cursor-default"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Options List */}
+      {isOpen && (
+        <div className="absolute z-20 w-full mt-2 bg-white rounded-2xl border-2 border-yellow/20 shadow-lg max-h-60 overflow-y-auto animate-fade-in p-1">
+          {options.map((opt) => (
+            <div
+              key={opt.value}
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+              className={`px-4 py-2.5 text-sm rounded-xl cursor-pointer hover:bg-cream/40 transition text-left ${
+                value === opt.value ? "bg-cream text-purple font-semibold" : "text-foreground/80"
+              }`}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProductsList() {
   const { products, categories } = useProducts();
   const { openCart, addToCart } = useCart();
@@ -85,15 +146,15 @@ function ProductsList() {
               {/* Sort selector */}
               <div className="relative w-full md:w-auto shrink-0 flex items-center gap-2">
                 <ArrowUpDown className="w-4 h-4 text-purple" />
-                <select
+                <CuteSelect
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full md:w-56 px-5 py-3.5 rounded-full border-2 border-yellow/20 focus:border-orange bg-cream/10 text-sm outline-none transition font-body text-purple font-semibold cursor-pointer appearance-none"
-                >
-                  <option value="default">Sort by: Featured</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                </select>
+                  onChange={setSortBy}
+                  options={[
+                    { value: "default", label: "Sort by: Featured" },
+                    { value: "price-asc", label: "Price: Low to High" },
+                    { value: "price-desc", label: "Price: High to Low" },
+                  ]}
+                />
               </div>
             </div>
 
