@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
+import { Mail, Phone, MapPin, Calendar, Trash2 } from "lucide-react";
 
 interface AccordionItemProps {
   title: string;
@@ -100,9 +101,48 @@ function SocialIcons({ hoverBgClass }: { hoverBgClass: string }) {
 }
 
 export function Footer() {
+  const [isTrackOpen, setIsTrackOpen] = useState(false);
+  const [trackOrderId, setTrackOrderId] = useState("");
+  const [trackingResult, setTrackingResult] = useState<any | null>(null);
+  const [trackError, setTrackError] = useState("");
+
+  const [isShippingOpen, setIsShippingOpen] = useState(false);
+  const [isReturnsOpen, setIsReturnsOpen] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert("Thank you for staying linked! 🌸");
+  };
+
+  const handleTrackSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTrackError("");
+    setTrackingResult(null);
+
+    if (!trackOrderId.trim()) {
+      setTrackError("Please enter a valid Order ID! 🌸");
+      return;
+    }
+
+    try {
+      const stored = localStorage.getItem("hapyezta-orders");
+      if (stored) {
+        const orders = JSON.parse(stored);
+        const matched = orders.find(
+          (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
+        );
+        if (matched) {
+          setTrackingResult(matched);
+        } else {
+          setTrackError("No order found with this ID. 😿 Please check spelling!");
+        }
+      } else {
+        setTrackError("No orders placed on this device yet! 🌸");
+      }
+    } catch (err) {
+      console.error(err);
+      setTrackError("Something went wrong. Please try again!");
+    }
   };
 
   return (
@@ -146,27 +186,36 @@ export function Footer() {
           </div>
         </AccordionItem>
 
-        <AccordionItem title="Contact Us" to="/contact">
-          <ul className="space-y-2">
+        <AccordionItem title="Help & Contact">
+          <ul className="space-y-2 text-left">
             <li>
-              <Link to="/contact" className="text-foreground/80 hover:text-orange transition">
+              <Link to="/contact" className="text-foreground/80 hover:text-orange transition block">
                 Contact page
               </Link>
             </li>
             <li>
-              <Link to="/" hash="collection" className="text-foreground/80 hover:text-orange transition">
+              <button
+                onClick={() => setIsTrackOpen(true)}
+                className="text-foreground/80 hover:text-orange transition text-left cursor-pointer border-none bg-transparent outline-none p-0 block font-sans"
+              >
                 Track order
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/" hash="collection" className="text-foreground/80 hover:text-orange transition">
+              <button
+                onClick={() => setIsShippingOpen(true)}
+                className="text-foreground/80 hover:text-orange transition text-left cursor-pointer border-none bg-transparent outline-none p-0 block font-sans"
+              >
                 Shipping info
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/" hash="collection" className="text-foreground/80 hover:text-orange transition">
+              <button
+                onClick={() => setIsReturnsOpen(true)}
+                className="text-foreground/80 hover:text-orange transition text-left cursor-pointer border-none bg-transparent outline-none p-0 block font-sans"
+              >
                 Returns
-              </Link>
+              </button>
             </li>
           </ul>
         </AccordionItem>
@@ -210,10 +259,35 @@ export function Footer() {
           <div>
             <div className="font-display text-lg mb-3 text-white font-semibold">Help</div>
             <ul className="space-y-2 text-sm text-[#E8DDF8]">
-              <li><Link to="/" hash="collection" className="hover:text-[#FFB84D] transition">Track order</Link></li>
-              <li><Link to="/" hash="collection" className="hover:text-[#FFB84D] transition">Shipping</Link></li>
-              <li><Link to="/" hash="collection" className="hover:text-[#FFB84D] transition">Returns</Link></li>
-              <li><Link to="/contact" className="hover:text-[#FFB84D] transition">Contact</Link></li>
+              <li>
+                <button
+                  onClick={() => setIsTrackOpen(true)}
+                  className="hover:text-[#FFB84D] transition cursor-pointer border-none bg-transparent outline-none p-0 text-left font-sans block"
+                >
+                  Track order
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setIsShippingOpen(true)}
+                  className="hover:text-[#FFB84D] transition cursor-pointer border-none bg-transparent outline-none p-0 text-left font-sans block"
+                >
+                  Shipping
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setIsReturnsOpen(true)}
+                  className="hover:text-[#FFB84D] transition cursor-pointer border-none bg-transparent outline-none p-0 text-left font-sans block"
+                >
+                  Returns
+                </button>
+              </li>
+              <li>
+                <Link to="/contact" className="hover:text-[#FFB84D] transition block">
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
@@ -244,6 +318,177 @@ export function Footer() {
           </a>
         </div>
       </div>
+      {/* Track Order Modal */}
+      {isTrackOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-[2rem] w-full max-w-lg p-6 sm:p-8 border-2 border-yellow/20 shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => {
+                setIsTrackOpen(false);
+                setTrackOrderId("");
+                setTrackingResult(null);
+                setTrackError("");
+              }}
+              className="absolute top-4 right-4 text-foreground/40 hover:text-coral transition cursor-pointer text-xl"
+            >
+              🌸
+            </button>
+            <h3 className="font-display text-2xl text-purple font-bold mb-2 flex items-center gap-2">
+              📦 Track Your Order
+            </h3>
+            <p className="text-sm text-foreground/60 mb-6 font-body">
+              Enter your Order ID (e.g., HAP-2026-8921) to check its current status.
+            </p>
+
+            <form onSubmit={handleTrackSubmit} className="space-y-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Order ID..."
+                  value={trackOrderId}
+                  onChange={(e) => setTrackOrderId(e.target.value)}
+                  className="flex-1 px-5 py-3 rounded-full border-2 border-yellow/20 focus:border-orange bg-cream/10 outline-none transition text-foreground uppercase tracking-wide font-mono placeholder:tracking-normal placeholder:font-sans text-sm"
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-3 rounded-full bg-orange hover:bg-orange/95 text-white font-bold transition-all shadow-[0_4px_0_0_#c4513f] hover:translate-y-0.5 hover:shadow-[0_1px_0_0_#c4513f] cursor-pointer text-xs font-display uppercase tracking-wider"
+                >
+                  Track
+                </button>
+              </div>
+
+              {trackError && (
+                <div className="p-3 bg-coral/10 text-coral rounded-2xl text-xs font-bold font-body text-center animate-fade-in">
+                  🌸 {trackError}
+                </div>
+              )}
+
+              {trackingResult && (
+                <div className="bg-cream/20 border border-yellow/20 rounded-2xl p-5 space-y-4 animate-fade-in font-body text-sm">
+                  <div className="flex items-center justify-between border-b border-purple/5 pb-2.5">
+                    <span className="font-bold text-purple">{trackingResult.id}</span>
+                    <div>
+                      {trackingResult.status === "pending" && (
+                        <span className="bg-orange/10 text-orange px-3 py-1 rounded-full text-xs font-bold border border-orange/20">
+                          ⏳ Pending
+                        </span>
+                      )}
+                      {trackingResult.status === "shipped" && (
+                        <span className="bg-purple/10 text-purple px-3 py-1 rounded-full text-xs font-bold border border-purple/20">
+                          🚚 Shipped
+                        </span>
+                      )}
+                      {trackingResult.status === "delivered" && (
+                        <span className="bg-teal/10 text-teal px-3 py-1 rounded-full text-xs font-bold border border-teal/20">
+                          ✓ Delivered
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs text-foreground/70 text-left">
+                    <p>Customer: <span className="font-bold text-purple">{trackingResult.customerName}</span></p>
+                    <p>Estimate: <span className="font-bold text-teal">{trackingResult.deliveryEstimate || "3-5 business days"}</span></p>
+                    <p>Total Amount: <span className="font-bold text-coral">₹{trackingResult.totalAmount}</span></p>
+                  </div>
+
+                  <div className="border-t border-purple/5 pt-3 text-left">
+                    <h4 className="font-display font-semibold text-xs text-purple mb-2">Order Items:</h4>
+                    <div className="max-h-28 overflow-y-auto space-y-2">
+                      {trackingResult.items.map((item: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center text-xs">
+                          <span className="truncate max-w-[200px]" title={item.name}>{item.name}</span>
+                          <span className="text-foreground/50 shrink-0">{item.priceString} x {item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Shipping Policy Modal */}
+      {isShippingOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-[2rem] w-full max-w-md p-6 sm:p-8 border-2 border-yellow/20 shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setIsShippingOpen(false)}
+              className="absolute top-4 right-4 text-foreground/40 hover:text-coral transition cursor-pointer text-xl"
+            >
+              🌸
+            </button>
+            <h3 className="font-display text-2xl text-purple font-bold mb-4 flex items-center gap-2">
+              🚚 Shipping Policy
+            </h3>
+            <div className="space-y-4 font-body text-sm text-foreground/75 leading-relaxed text-left">
+              <div className="flex gap-3">
+                <span className="text-lg">📦</span>
+                <div>
+                  <h4 className="font-bold text-purple text-xs uppercase tracking-wider mb-1">Standard Processing</h4>
+                  <p>Orders are packed with love and processed within 1-2 business days.</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-lg">⚡</span>
+                <div>
+                  <h4 className="font-bold text-purple text-xs uppercase tracking-wider mb-1">Pan-India Delivery</h4>
+                  <p>Usually takes 3-7 business days depending on location. Free shipping for all orders above ₹499!</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-lg">💌</span>
+                <div>
+                  <h4 className="font-bold text-purple text-xs uppercase tracking-wider mb-1">Notifications</h4>
+                  <p>You will receive a notification with tracking info once your box is shipped.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Returns Policy Modal */}
+      {isReturnsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-[2rem] w-full max-w-md p-6 sm:p-8 border-2 border-yellow/20 shadow-xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setIsReturnsOpen(false)}
+              className="absolute top-4 right-4 text-foreground/40 hover:text-coral transition cursor-pointer text-xl"
+            >
+              🌸
+            </button>
+            <h3 className="font-display text-2xl text-purple font-bold mb-4 flex items-center gap-2">
+              🎀 Returns & Exchanges
+            </h3>
+            <div className="space-y-4 font-body text-sm text-foreground/75 leading-relaxed text-left">
+              <div className="flex gap-3">
+                <span className="text-lg">🌸</span>
+                <div>
+                  <h4 className="font-bold text-purple text-xs uppercase tracking-wider mb-1">7-Day Return window</h4>
+                  <p>We accept returns for damaged, defective, or incorrect products within 7 days of delivery.</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-lg">📦</span>
+                <div>
+                  <h4 className="font-bold text-purple text-xs uppercase tracking-wider mb-1">Safe Packaging</h4>
+                  <p>Items must be returned in their original packaging and unused condition to qualify for refund/exchange.</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-lg">💌</span>
+                <div>
+                  <h4 className="font-bold text-purple text-xs uppercase tracking-wider mb-1">Support Contact</h4>
+                  <p>Send an unboxing video and your Order ID to our WhatsApp or email to initiate a return request.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </footer>
   );
 }
