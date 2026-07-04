@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Home, Search, LayoutGrid, ShoppingCart, User, X, ShoppingBag, ArrowRight } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useLocation } from "@tanstack/react-router";
 import { useCart } from "@/context/CartContext";
 import { useProducts } from "@/context/ProductContext";
 import {
@@ -19,10 +19,13 @@ import {
 export function MobileNav() {
   const { cartCount, openCart, isCartOpen } = useCart();
   const { products } = useProducts();
-  const [activeTab, setActiveTab] = useState("home");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isHomeActive = location.pathname === "/";
+  const isShopActive = location.pathname === "/products";
 
   // Search logic
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,15 +38,11 @@ export function MobileNav() {
     : [];
 
   const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
     if (tab === "home") {
       navigate({ to: "/" });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (tab === "shop") {
-      const el = document.getElementById("collection");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
+      navigate({ to: "/products" });
     } else if (tab === "search") {
       setIsSearchOpen(true);
     } else if (tab === "cart") {
@@ -61,14 +60,14 @@ export function MobileNav() {
           <button
             onClick={() => handleTabClick("home")}
             className={`flex flex-col items-center justify-center w-16 h-full transition-all duration-300 relative cursor-pointer ${
-              activeTab === "home"
+              isHomeActive
                 ? "text-coral scale-105 font-bold"
                 : "text-coral/70 hover:text-coral"
             }`}
           >
             <Home className="w-[22px] h-[22px] stroke-[2.2]" />
             <span className="text-[11px] font-semibold mt-0.5 font-body">Home</span>
-            {activeTab === "home" && (
+            {isHomeActive && (
               <span className="absolute bottom-1 w-1 h-1 rounded-full bg-coral animate-ping" />
             )}
           </button>
@@ -77,14 +76,14 @@ export function MobileNav() {
           <button
             onClick={() => handleTabClick("search")}
             className={`flex flex-col items-center justify-center w-16 h-full transition-all duration-300 relative cursor-pointer ${
-              activeTab === "search" || isSearchOpen
+              isSearchOpen
                 ? "text-coral scale-105 font-bold"
                 : "text-coral/70 hover:text-coral"
             }`}
           >
             <Search className="w-[22px] h-[22px] stroke-[2.2]" />
             <span className="text-[11px] font-semibold mt-0.5 font-body">Search</span>
-            {(activeTab === "search" || isSearchOpen) && (
+            {isSearchOpen && (
               <span className="absolute bottom-1 w-1 h-1 rounded-full bg-coral" />
             )}
           </button>
@@ -93,14 +92,14 @@ export function MobileNav() {
           <button
             onClick={() => handleTabClick("shop")}
             className={`flex flex-col items-center justify-center w-16 h-full transition-all duration-300 relative cursor-pointer ${
-              activeTab === "shop"
+              isShopActive
                 ? "text-coral scale-105 font-bold"
                 : "text-coral/70 hover:text-coral"
             }`}
           >
             <LayoutGrid className="w-[22px] h-[22px] stroke-[2.2]" />
             <span className="text-[11px] font-semibold mt-0.5 font-body">Shop</span>
-            {activeTab === "shop" && (
+            {isShopActive && (
               <span className="absolute bottom-1 w-1 h-1 rounded-full bg-coral" />
             )}
           </button>
@@ -109,7 +108,7 @@ export function MobileNav() {
           <button
             onClick={() => handleTabClick("cart")}
             className={`flex flex-col items-center justify-center w-16 h-full transition-all duration-300 relative cursor-pointer ${
-              activeTab === "cart" || isCartOpen
+              isCartOpen
                 ? "text-coral scale-105 font-bold"
                 : "text-coral/70 hover:text-coral"
             }`}
@@ -123,7 +122,7 @@ export function MobileNav() {
               )}
             </div>
             <span className="text-[11px] font-semibold mt-0.5 font-body">cart</span>
-            {(activeTab === "cart" || isCartOpen) && (
+            {isCartOpen && (
               <span className="absolute bottom-1 w-1 h-1 rounded-full bg-coral" />
             )}
           </button>
@@ -132,14 +131,14 @@ export function MobileNav() {
           <button
             onClick={() => handleTabClick("account")}
             className={`flex flex-col items-center justify-center w-16 h-full transition-all duration-300 relative cursor-pointer ${
-              activeTab === "account" || isAccountOpen
+              isAccountOpen
                 ? "text-coral scale-105 font-bold"
                 : "text-coral/70 hover:text-coral"
             }`}
           >
             <User className="w-[22px] h-[22px] stroke-[2.2]" />
             <span className="text-[11px] font-semibold mt-0.5 font-body">account</span>
-            {(activeTab === "account" || isAccountOpen) && (
+            {isAccountOpen && (
               <span className="absolute bottom-1 w-1 h-1 rounded-full bg-coral" />
             )}
           </button>
