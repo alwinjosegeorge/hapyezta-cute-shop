@@ -54,7 +54,7 @@ export function Header() {
           <Link to="/" hash="featured" className="hover:text-coral transition">New In</Link>
           <Link to="/" hash="collection" className="hover:text-coral transition">Stationery</Link>
           <Link to="/" hash="collection" className="hover:text-coral transition">Gift Sets</Link>
-          <Link to="/" hash="insta" className="hover:text-coral transition">Reviews</Link>
+          <Link to="/" hash="reviews" className="hover:text-coral transition">Reviews</Link>
         </nav>
 
         {/* Right buttons (stays right-aligned on mobile via ml-auto) */}

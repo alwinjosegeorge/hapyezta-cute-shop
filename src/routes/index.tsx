@@ -288,7 +288,7 @@ function Index() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 px-4 bg-yellow/20">
+      <section id="reviews" className="py-16 px-4 bg-yellow/20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <div className="text-orange font-semibold tracking-widest text-xs uppercase">Love Notes</div>
