@@ -173,7 +173,15 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-6 text-center text-xs text-foreground/50">
-          © {new Date().getFullYear()} Hapyezta · Made by Codexora
+          © {new Date().getFullYear()} Hapyezta · Made by{" "}
+          <a
+            href="https://codexora.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold hover:text-orange transition"
+          >
+            Codexora
+          </a>
         </div>
       </div>
 
@@ -223,7 +231,15 @@ export function Footer() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-[#E8DDF8]/20 text-center text-xs text-[#E8DDF8]/70">
-          © {new Date().getFullYear()} Hapyezta · Made by Codexora
+          © {new Date().getFullYear()} Hapyezta · Made by{" "}
+          <a
+            href="https://codexora.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-white hover:text-[#FFB84D] transition"
+          >
+            Codexora
+          </a>
         </div>
       </div>
     </footer>
