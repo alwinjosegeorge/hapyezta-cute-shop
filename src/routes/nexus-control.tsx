@@ -6,7 +6,7 @@ import { MarqueeBanner } from "@/components/MarqueeBanner";
 import { Footer } from "@/components/Footer";
 import { useProducts } from "@/context/ProductContext";
 
-export const Route = createFileRoute("/control-panel")({
+export const Route = createFileRoute("/nexus-control")({
   head: () => ({
     meta: [
       { title: "Control Panel - Hapyezta" },
@@ -83,6 +83,31 @@ function CuteSelect({
 function ControlPanel() {
   const { categories, addProduct } = useProducts();
   const [viewMode, setViewMode] = useState<"add-product" | "track-orders">("add-product");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState("");
+
+  // Check auth in sessionStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const auth = sessionStorage.getItem("nexus-authenticated");
+      if (auth === "true") {
+        setIsAuthenticated(true);
+      }
+    }
+  }, []);
+
+  const handlePasscodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passcode === "5555") {
+      sessionStorage.setItem("nexus-authenticated", "true");
+      setIsAuthenticated(true);
+      setPasscodeError("");
+    } else {
+      setPasscodeError("Incorrect access code 🌸 Please try again!");
+      setPasscode("");
+    }
+  };
 
   // Notification state
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -323,6 +348,56 @@ function ControlPanel() {
     o.id.toLowerCase().includes(searchOrderQuery.toLowerCase()) ||
     o.customerName.toLowerCase().includes(searchOrderQuery.toLowerCase())
   );
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col justify-between">
+        <div>
+          <MarqueeBanner />
+          <Header />
+
+          <main className="max-w-md mx-auto px-4 py-20">
+            <div className="bg-white rounded-[2rem] p-8 border-2 border-yellow/20 shadow-[0_12px_40px_rgba(127,88,165,0.06)] text-center">
+              <div className="text-4xl mb-4 select-none animate-bounce">🔒</div>
+              <h1 className="font-display text-3xl text-purple font-bold mb-2">Nexus Control</h1>
+              <p className="text-sm text-foreground/60 mb-6 font-body">
+                Please enter the security access code to open the admin console.
+              </p>
+
+              <form onSubmit={handlePasscodeSubmit} className="space-y-5">
+                <div>
+                  <input
+                    type="password"
+                    placeholder="Enter security code..."
+                    value={passcode}
+                    onChange={(e) => setPasscode(e.target.value)}
+                    className="w-full text-center tracking-[0.2em] font-mono text-lg px-6 py-4 rounded-full border-2 border-yellow/20 focus:border-orange bg-cream/10 outline-none transition text-foreground placeholder:text-foreground/30 placeholder:tracking-normal placeholder:font-sans"
+                    maxLength={10}
+                    autoFocus
+                  />
+                </div>
+
+                {passcodeError && (
+                  <div className="flex items-center justify-center gap-2 text-xs text-coral font-semibold bg-coral/10 py-2.5 px-4 rounded-full animate-fade-in">
+                    <span>🌸</span>
+                    <span>{passcodeError}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full py-4 rounded-full bg-orange hover:bg-orange/95 text-white font-bold shadow-[0_5px_0_0_#c4513f] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#c4513f] transition-all cursor-pointer text-sm font-display uppercase tracking-widest"
+                >
+                  Verify Access
+                </button>
+              </form>
+            </div>
+          </main>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-between">
