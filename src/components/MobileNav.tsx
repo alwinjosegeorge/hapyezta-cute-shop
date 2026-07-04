@@ -27,6 +27,42 @@ export function MobileNav() {
   const isHomeActive = location.pathname === "/";
   const isShopActive = location.pathname === "/products";
 
+  const [isTrackOpen, setIsTrackOpen] = useState(false);
+  const [trackOrderId, setTrackOrderId] = useState("");
+  const [trackingResult, setTrackingResult] = useState<any | null>(null);
+  const [trackError, setTrackError] = useState("");
+
+  const handleTrackSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTrackError("");
+    setTrackingResult(null);
+
+    if (!trackOrderId.trim()) {
+      setTrackError("Please enter a valid Order ID! 🌸");
+      return;
+    }
+
+    try {
+      const stored = localStorage.getItem("hapyezta-orders");
+      if (stored) {
+        const orders = JSON.parse(stored);
+        const matched = orders.find(
+          (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
+        );
+        if (matched) {
+          setTrackingResult(matched);
+        } else {
+          setTrackError("No order found with this ID. 😿 Please check spelling!");
+        }
+      } else {
+        setTrackError("No orders placed on this device yet! 🌸");
+      }
+    } catch (err) {
+      console.error(err);
+      setTrackError("Something went wrong. Please try again!");
+    }
+  };
+
   // Search logic
   const [searchQuery, setSearchQuery] = useState("");
   const filteredProducts = searchQuery
@@ -307,7 +343,10 @@ export function MobileNav() {
             {/* Account settings / links */}
             <div className="bg-white rounded-2xl p-2.5 border border-purple/10 shadow-sm space-y-1 text-sm">
               <button
-                onClick={() => alert("Opening orders history...")}
+                onClick={() => {
+                  setIsAccountOpen(false);
+                  setIsTrackOpen(true);
+                }}
                 className="w-full text-left px-4 py-2.5 rounded-xl hover:bg-cream hover:text-coral transition font-semibold text-purple cursor-pointer border-none bg-transparent"
               >
                 📦 Track My Orders
@@ -332,6 +371,96 @@ export function MobileNav() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Track Order Modal */}
+      {isTrackOpen && (
+        <Dialog open={isTrackOpen} onOpenChange={(open) => {
+          if (!open) {
+            setIsTrackOpen(false);
+            setTrackOrderId("");
+            setTrackingResult(null);
+            setTrackError("");
+          }
+        }}>
+          <DialogContent className="w-[92vw] sm:max-w-[480px] rounded-[2rem] sm:rounded-3xl p-6 sm:p-8 bg-white border-2 border-yellow/20 shadow-xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader className="pb-2">
+              <DialogTitle className="font-display text-2xl text-purple flex items-center gap-2">
+                📦 Track Your Order
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-foreground/60 mb-4 font-body">
+              Enter your Order ID (e.g., HAP-2026-8921) to check its current status.
+            </p>
+
+            <form onSubmit={handleTrackSubmit} className="space-y-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Order ID..."
+                  value={trackOrderId}
+                  onChange={(e) => setTrackOrderId(e.target.value)}
+                  className="flex-1 px-5 py-3 rounded-full border-2 border-yellow/20 focus:border-orange bg-cream/10 outline-none transition text-foreground uppercase tracking-wide font-mono placeholder:tracking-normal placeholder:font-sans text-sm"
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-3 rounded-full bg-orange hover:bg-orange/95 text-white font-bold transition-all shadow-[0_4px_0_0_#c4513f] hover:translate-y-0.5 hover:shadow-[0_1px_0_0_#c4513f] cursor-pointer text-xs font-display uppercase tracking-wider"
+                >
+                  Track
+                </button>
+              </div>
+
+              {trackError && (
+                <div className="p-3 bg-coral/10 text-coral rounded-2xl text-xs font-bold font-body text-center animate-fade-in">
+                  🌸 {trackError}
+                </div>
+              )}
+
+              {trackingResult && (
+                <div className="bg-cream/20 border border-yellow/20 rounded-2xl p-5 space-y-4 animate-fade-in font-body text-sm">
+                  <div className="flex items-center justify-between border-b border-purple/5 pb-2.5">
+                    <span className="font-bold text-purple">{trackingResult.id}</span>
+                    <div>
+                      {trackingResult.status === "pending" && (
+                        <span className="bg-orange/10 text-orange px-3 py-1 rounded-full text-xs font-bold border border-orange/20">
+                          ⏳ Pending
+                        </span>
+                      )}
+                      {trackingResult.status === "shipped" && (
+                        <span className="bg-purple/10 text-purple px-3 py-1 rounded-full text-xs font-bold border border-purple/20">
+                          🚚 Shipped
+                        </span>
+                      )}
+                      {trackingResult.status === "delivered" && (
+                        <span className="bg-teal/10 text-teal px-3 py-1 rounded-full text-xs font-bold border border-teal/20">
+                          ✓ Delivered
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs text-foreground/70 text-left">
+                    <p>Customer: <span className="font-bold text-purple">{trackingResult.customerName}</span></p>
+                    <p>Estimate: <span className="font-bold text-teal">{trackingResult.deliveryEstimate || "3-5 business days"}</span></p>
+                    <p>Total Amount: <span className="font-bold text-coral">₹{trackingResult.totalAmount}</span></p>
+                  </div>
+
+                  <div className="border-t border-purple/5 pt-3 text-left">
+                    <h4 className="font-display font-semibold text-xs text-purple mb-2">Order Items:</h4>
+                    <div className="max-h-28 overflow-y-auto space-y-2">
+                      {trackingResult.items.map((item: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center text-xs">
+                          <span className="truncate max-w-[200px]" title={item.name}>{item.name}</span>
+                          <span className="text-foreground/50 shrink-0">{item.priceString} x {item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }
