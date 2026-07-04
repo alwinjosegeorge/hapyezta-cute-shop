@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ControlpanelRouteImport } from './routes/controlpanel'
 import { Route as Control_panelRouteImport } from './routes/control_panel'
 import { Route as ControlPanelRouteImport } from './routes/control-panel'
@@ -17,6 +18,11 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ControlpanelRoute = ControlpanelRouteImport.update({
   id: '/controlpanel',
   path: '/controlpanel',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/control-panel': typeof ControlPanelRoute
   '/control_panel': typeof Control_panelRoute
   '/controlpanel': typeof ControlpanelRoute
+  '/products': typeof ProductsRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/control-panel': typeof ControlPanelRoute
   '/control_panel': typeof Control_panelRoute
   '/controlpanel': typeof ControlpanelRoute
+  '/products': typeof ProductsRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/control-panel': typeof ControlPanelRoute
   '/control_panel': typeof Control_panelRoute
   '/controlpanel': typeof ControlpanelRoute
+  '/products': typeof ProductsRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/control-panel'
     | '/control_panel'
     | '/controlpanel'
+    | '/products'
     | '/product/$productId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/control-panel'
     | '/control_panel'
     | '/controlpanel'
+    | '/products'
     | '/product/$productId'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/control-panel'
     | '/control_panel'
     | '/controlpanel'
+    | '/products'
     | '/product/$productId'
   fileRoutesById: FileRoutesById
 }
@@ -118,11 +130,19 @@ export interface RootRouteChildren {
   ControlPanelRoute: typeof ControlPanelRoute
   Control_panelRoute: typeof Control_panelRoute
   ControlpanelRoute: typeof ControlpanelRoute
+  ProductsRoute: typeof ProductsRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/controlpanel': {
       id: '/controlpanel'
       path: '/controlpanel'
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   ControlPanelRoute: ControlPanelRoute,
   Control_panelRoute: Control_panelRoute,
   ControlpanelRoute: ControlpanelRoute,
+  ProductsRoute: ProductsRoute,
   ProductProductIdRoute: ProductProductIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -243,9 +243,9 @@ function Index() {
           </div>
 
           <div className="text-center mt-10">
-            <a href="#" className="inline-block px-8 py-3 rounded-full border-2 border-purple text-purple font-bold hover:bg-purple hover:text-white transition">
+            <Link to="/products" className="inline-block px-8 py-3 rounded-full border-2 border-purple text-purple font-bold hover:bg-purple hover:text-white transition cursor-pointer">
               View all →
-            </a>
+            </Link>
           </div>
         </div>
       </section>
