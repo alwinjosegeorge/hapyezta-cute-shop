@@ -31,7 +31,11 @@ export function Header() {
         }`}
       >
         {/* Mobile Centered Logo (Always visible, collapses icon on scroll) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden">
+        <div
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 lg:hidden transition-all duration-300 ease-in-out ${
+            isScrolled ? "-translate-y-[58%]" : "-translate-y-1/2"
+          }`}
+        >
           <Link to="/" className="hover:opacity-90 transition block">
             <Logo size="sm" withSlogan={true} collapseOnScroll={true} isScrolled={isScrolled} className="items-center" />
           </Link>
