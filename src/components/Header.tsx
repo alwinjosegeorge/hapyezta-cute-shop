@@ -51,10 +51,10 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-foreground/80">
           <Link to="/products" className="hover:text-coral transition" activeProps={{ className: "text-coral font-bold" }}>Shop</Link>
-          <Link to="/" hash="featured" className="hover:text-coral transition">New In</Link>
-          <Link to="/" hash="collection" className="hover:text-coral transition">Stationery</Link>
-          <Link to="/" hash="collection" className="hover:text-coral transition">Gift Sets</Link>
-          <Link to="/" hash="reviews" className="hover:text-coral transition">Reviews</Link>
+          <a href="/#featured" onClick={(e) => { e.preventDefault(); document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-coral transition cursor-pointer">New In</a>
+          <a href="/#collection" onClick={(e) => { e.preventDefault(); document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-coral transition cursor-pointer">Stationery</a>
+          <a href="/#collection" onClick={(e) => { e.preventDefault(); document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-coral transition cursor-pointer">Gift Sets</a>
+          <a href="/#reviews" onClick={(e) => { e.preventDefault(); document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" }); }} className="hover:text-coral transition cursor-pointer">Reviews</a>
         </nav>
 
         {/* Right buttons (stays right-aligned on mobile via ml-auto) */}
