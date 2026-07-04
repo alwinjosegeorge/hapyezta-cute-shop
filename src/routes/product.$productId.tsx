@@ -17,6 +17,7 @@ import { Header } from "@/components/Header";
 import { MarqueeBanner } from "@/components/MarqueeBanner";
 import { Footer } from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 export const Route = createFileRoute("/product/$productId")({
   component: ProductDetails,
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/product/$productId")({
 
 function ProductDetails() {
   const { cartCount, openCart, addToCart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const { productId } = Route.useParams();
   const { products } = useProducts();
   const product = products.find((p) => p.id === productId);
@@ -40,7 +42,6 @@ function ProductDetails() {
   const [selectedColor, setSelectedColor] = useState(
     product && product.colors.length > 0 ? product.colors[0] : ""
   );
-  const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState("description"); // "description" | "details"
 
   if (!product) {
@@ -130,14 +131,14 @@ function ProductDetails() {
                 </span>
               )}
               <button
-                onClick={() => setIsFavorite(!isFavorite)}
+                onClick={() => toggleFavorite(product)}
                 className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-full grid place-items-center transition shadow cursor-pointer ${
-                  isFavorite
+                  isFavorite(product.name)
                     ? "bg-coral text-white"
                     : "bg-white text-coral hover:bg-coral hover:text-white"
                 }`}
               >
-                <Heart className={`w-5 h-5 ${isFavorite ? "fill-white" : ""}`} />
+                <Heart className={`w-5 h-5 ${isFavorite(product.name) ? "fill-white" : ""}`} />
               </button>
               <img
                 src={product.img}

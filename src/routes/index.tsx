@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { MarqueeBanner } from "@/components/MarqueeBanner";
 import { Footer } from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
 import hero from "@/assets/hero.jpg";
 import heroSlide1 from "@/assets/hero_slide_1.png";
 import heroSlide2 from "@/assets/hero_slide_2.png";
@@ -47,6 +48,7 @@ const testimonials = [
 function Index() {
   const { products, categories } = useProducts();
   const { cartCount, openCart, addToCart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [activeFeaturedTab, setActiveFeaturedTab] = useState<"best" | "new">("best");
   const heroImages = [hero, heroSlide1, heroSlide2, heroSlide3];
@@ -205,8 +207,12 @@ function Index() {
                       {p.tag}
                     </span>
                   )}
-                  <button onClick={() => alert(`${p.name} added to favorites! 💖`)} className="absolute top-3 right-3 z-10 w-9 h-9 bg-white rounded-full grid place-items-center text-coral hover:bg-coral hover:text-white transition shadow cursor-pointer">
-                    <Heart className="w-4 h-4" />
+                  <button
+                    onClick={() => toggleFavorite(p)}
+                    className="absolute top-3 right-3 z-10 w-9 h-9 bg-white rounded-full grid place-items-center text-coral hover:bg-coral hover:text-white transition shadow cursor-pointer"
+                    aria-label={isFavorite(p.name) ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    <Heart className={`w-4 h-4 ${isFavorite(p.name) ? "fill-coral text-coral" : ""}`} />
                   </button>
                   <Link to="/product/$productId" params={{ productId: p.id }} className="block w-full h-full">
                     <img src={p.img} alt={p.name} loading="lazy" width={800} height={800} className="w-full h-full object-cover group-hover:scale-105 transition" />

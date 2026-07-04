@@ -3,9 +3,11 @@ import { Link } from "@tanstack/react-router";
 import { Search, ShoppingBag, Heart } from "lucide-react";
 import { Logo, LogoIcon, LogoText } from "./Logo";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 export function Header() {
   const { cartCount, openCart } = useCart();
+  const { favoriteItems, openFavorites } = useFavorites();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -56,7 +58,14 @@ export function Header() {
         {/* Right buttons (stays right-aligned on mobile via ml-auto) */}
         <div className="flex items-center gap-2 sm:gap-3 z-20 ml-auto lg:ml-0">
           <button className="p-2 hover:text-coral hidden lg:block"><Search className="w-5 h-5" /></button>
-          <button className="p-2 hover:text-coral hidden sm:block"><Heart className="w-5 h-5" /></button>
+          <button onClick={openFavorites} className="p-2 hover:text-coral relative hidden sm:block cursor-pointer">
+            <Heart className="w-5 h-5" />
+            {favoriteItems.length > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-coral text-white text-[10px] font-bold w-4 h-4 rounded-full grid place-items-center animate-fade-in">
+                {favoriteItems.length}
+              </span>
+            )}
+          </button>
           <button onClick={openCart} className="p-2 hover:text-coral relative hidden lg:block cursor-pointer">
             <ShoppingBag className="w-5 h-5" />
             {cartCount > 0 && (
