@@ -141,6 +141,9 @@ function ProductsList() {
                         {p.tag}
                       </span>
                     )}
+                    <button onClick={() => alert(`${p.name} added to favorites! 💖`)} className="absolute top-3 right-3 z-10 w-9 h-9 bg-white rounded-full grid place-items-center text-coral hover:bg-coral hover:text-white transition shadow cursor-pointer">
+                      <Heart className="w-4 h-4" />
+                    </button>
                     <Link to="/product/$productId" params={{ productId: p.id }} className="block w-full h-full">
                       <img src={p.img} alt={p.name} loading="lazy" width={800} height={800} className="w-full h-full object-cover group-hover:scale-105 transition" />
                     </Link>

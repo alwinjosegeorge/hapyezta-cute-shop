@@ -197,7 +197,7 @@ function Index() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {displayedProducts.map((p) => (
+            {displayedProducts.slice(0, 4).map((p) => (
               <article key={p.name} className="bg-cream rounded-3xl overflow-hidden border-2 border-transparent hover:border-coral transition group flex flex-col justify-between">
                 <div className="relative aspect-square overflow-hidden bg-white">
                   {p.tag && (
@@ -205,6 +205,9 @@ function Index() {
                       {p.tag}
                     </span>
                   )}
+                  <button onClick={() => alert(`${p.name} added to favorites! 💖`)} className="absolute top-3 right-3 z-10 w-9 h-9 bg-white rounded-full grid place-items-center text-coral hover:bg-coral hover:text-white transition shadow cursor-pointer">
+                    <Heart className="w-4 h-4" />
+                  </button>
                   <Link to="/product/$productId" params={{ productId: p.id }} className="block w-full h-full">
                     <img src={p.img} alt={p.name} loading="lazy" width={800} height={800} className="w-full h-full object-cover group-hover:scale-105 transition" />
                   </Link>
