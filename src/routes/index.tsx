@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, Heart, ShoppingBag, Instagram, Star, Truck, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -51,6 +51,18 @@ function Index() {
   const { toggleFavorite, isFavorite } = useFavorites();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [activeFeaturedTab, setActiveFeaturedTab] = useState<"best" | "new">("best");
+  const [activeReviewIndex, setActiveReviewIndex] = useState(0);
+  const reviewContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleReviewScroll = () => {
+    if (!reviewContainerRef.current) return;
+    const scrollLeft = reviewContainerRef.current.scrollLeft;
+    const clientWidth = reviewContainerRef.current.clientWidth;
+    const index = Math.round(scrollLeft / clientWidth);
+    if (index >= 0 && index < testimonials.length) {
+      setActiveReviewIndex(index);
+    }
+  };
   const heroImages = [hero, heroSlide1, heroSlide2, heroSlide3];
 
   const displayedProducts = products.filter((p) => {
@@ -281,18 +293,49 @@ function Index() {
           <div className="text-center mb-10">
             <div className="text-orange font-semibold tracking-widest text-xs uppercase">Love Notes</div>
             <h2 className="font-display text-4xl sm:text-5xl text-purple mt-2">What our clients say</h2>
-            <div className="flex justify-center gap-1 mt-3">
+            
+            {/* Desktop colored dots decoration */}
+            <div className="hidden md:flex justify-center gap-1 mt-3">
               <span className="w-2.5 h-2.5 rounded-full bg-teal" />
               <span className="w-2.5 h-2.5 rounded-full bg-orange" />
               <span className="w-2.5 h-2.5 rounded-full bg-yellow" />
             </div>
+
+            {/* Mobile Carousel Indicators */}
+            <div className="flex md:hidden justify-center gap-2 mt-3">
+              {testimonials.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    if (reviewContainerRef.current) {
+                      const container = reviewContainerRef.current;
+                      const cardWidth = container.scrollWidth / testimonials.length;
+                      container.scrollTo({
+                        left: cardWidth * idx,
+                        behavior: "smooth"
+                      });
+                      setActiveReviewIndex(idx);
+                    }
+                  }}
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border-none outline-none p-0 cursor-pointer ${
+                    activeReviewIndex === idx ? "bg-teal w-6" : "bg-orange/40"
+                  }`}
+                  aria-label={`Go to review ${idx + 1}`}
+                />
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            ref={reviewContainerRef}
+            onScroll={handleReviewScroll}
+            className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 no-scrollbar md:grid md:grid-cols-3 md:overflow-x-visible md:pb-0"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
             {testimonials.map((t, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-3xl p-6 sm:p-8 shadow-md flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition duration-300 border-2 border-transparent hover:border-yellow/30"
+                className="bg-white rounded-3xl p-6 sm:p-8 shadow-md flex flex-col justify-between hover:shadow-lg hover:-translate-y-1 transition duration-300 border-2 border-transparent hover:border-yellow/30 snap-center shrink-0 w-[85vw] sm:w-[320px] md:w-auto md:shrink"
               >
                 <div>
                   <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-coral to-purple grid place-items-center text-2xl mb-4 select-none">
@@ -304,7 +347,7 @@ function Index() {
                       <Star key={i} className="w-4 h-4 fill-yellow text-yellow" />
                     ))}
                   </div>
-                  <p className="text-foreground/75 italic text-sm leading-relaxed text-center mt-2">
+                  <p className="text-foreground/75 italic text-sm leading-relaxed text-center mt-2 font-body">
                     "{t.text}"
                   </p>
                 </div>
