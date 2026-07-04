@@ -54,6 +54,26 @@ function Index() {
   const [activeReviewIndex, setActiveReviewIndex] = useState(0);
   const reviewContainerRef = useRef<HTMLDivElement>(null);
 
+  // If navigated here with #featured hash (from "New In" nav), switch to New In tab
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === "#featured" || hash === "#newin") {
+      setActiveFeaturedTab("new");
+      setTimeout(() => {
+        document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+    }
+  }, []);
+
+  // Listen for the custom event dispatched by Header when already on home page
+  useEffect(() => {
+    const handler = () => {
+      setActiveFeaturedTab("new");
+    };
+    window.addEventListener("switchToNewIn", handler);
+    return () => window.removeEventListener("switchToNewIn", handler);
+  }, []);
+
   const handleReviewScroll = () => {
     if (!reviewContainerRef.current) return;
     const scrollLeft = reviewContainerRef.current.scrollLeft;

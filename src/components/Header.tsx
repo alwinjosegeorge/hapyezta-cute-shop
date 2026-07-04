@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Search, ShoppingBag, Heart, User } from "lucide-react";
-import { Logo, LogoIcon, LogoText } from "./Logo";
+import { Logo } from "./Logo";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAccount } from "@/context/AccountContext";
@@ -11,15 +11,19 @@ export function Header() {
   const { favoriteItems, openFavorites } = useFavorites();
   const { openAccount } = useAccount();
   const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
 
   const scrollToSection = (id: string) => {
     if (window.location.pathname !== "/") {
-      navigate({ to: "/", hash: id });
+      window.location.href = "/#" + id;
     } else {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
+      if (id === "newin") {
+        window.dispatchEvent(new CustomEvent("switchToNewIn"));
+        document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
       }
     }
   };
@@ -73,7 +77,7 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-foreground/80">
           <Link to="/products" className="hover:text-coral transition" activeProps={{ className: "text-coral font-bold" }}>Shop</Link>
-          <a href="/#featured" onClick={(e) => { e.preventDefault(); scrollToSection("featured"); }} className="hover:text-coral transition cursor-pointer">New In</a>
+          <a href="/#newin" onClick={(e) => { e.preventDefault(); scrollToSection("newin"); }} className="hover:text-coral transition cursor-pointer">New In</a>
           <a href="/#collection" onClick={(e) => { e.preventDefault(); scrollToSection("collection"); }} className="hover:text-coral transition cursor-pointer">Stationery</a>
           <a href="/#collection" onClick={(e) => { e.preventDefault(); scrollToSection("collection"); }} className="hover:text-coral transition cursor-pointer">Gift Sets</a>
           <a href="/#reviews" onClick={(e) => { e.preventDefault(); scrollToSection("reviews"); }} className="hover:text-coral transition cursor-pointer">Reviews</a>
