@@ -50,7 +50,7 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-foreground/80">
-          <Link to="/" hash="collection" className="hover:text-coral transition">Shop</Link>
+          <Link to="/products" className="hover:text-coral transition" activeProps={{ className: "text-coral font-bold" }}>Shop</Link>
           <Link to="/" hash="featured" className="hover:text-coral transition">New In</Link>
           <Link to="/" hash="collection" className="hover:text-coral transition">Stationery</Link>
           <Link to="/" hash="collection" className="hover:text-coral transition">Gift Sets</Link>
