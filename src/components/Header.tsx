@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, ShoppingBag, Heart } from "lucide-react";
+import { Search, ShoppingBag, Heart, User } from "lucide-react";
 import { Logo, LogoIcon, LogoText } from "./Logo";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useAccount } from "@/context/AccountContext";
 
 export function Header() {
   const { cartCount, openCart } = useCart();
   const { favoriteItems, openFavorites } = useFavorites();
+  const { openAccount } = useAccount();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export function Header() {
         {/* Right buttons (stays right-aligned on mobile via ml-auto) */}
         <div className="flex items-center gap-2 sm:gap-3 z-20 ml-auto lg:ml-0">
           <button className="p-2 hover:text-coral hidden lg:block"><Search className="w-5 h-5" /></button>
+          <button onClick={openAccount} className="p-2 hover:text-coral hidden lg:block cursor-pointer" title="Your Profile"><User className="w-5 h-5" /></button>
           <button onClick={openFavorites} className="p-2 hover:text-coral relative hidden sm:block cursor-pointer">
             <Heart className="w-5 h-5" />
             {favoriteItems.length > 0 && (
