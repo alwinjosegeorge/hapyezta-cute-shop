@@ -1,9 +1,9 @@
-import { neon } from "@neondatabase/serverless";
+import postgres from "postgres";
 import { products as initialProducts } from "./products";
 import { base64Assets } from "./base64-assets";
 import { getServerConfig } from "./config.server";
 
-let sqlClient: ReturnType<typeof neon> | null = null;
+let sqlClient: ReturnType<typeof postgres> | null = null;
 
 export function getSql() {
   if (!sqlClient) {
@@ -12,7 +12,11 @@ export function getSql() {
     if (!dbUrl) {
       throw new Error("DATABASE_URL environment variable is missing!");
     }
-    sqlClient = neon(dbUrl);
+    sqlClient = postgres(dbUrl, {
+      ssl: "require",
+      max: 10,
+      idle_timeout: 20,
+    });
   }
   return sqlClient;
 }
