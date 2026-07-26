@@ -208,7 +208,7 @@ function Index() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
             {categories.map((c) => (
-              <a key={c.name} href="#" className="group">
+              <Link key={c.name} to="/products" search={{ category: c.name }} className="group">
                 <div className="aspect-square rounded-3xl overflow-hidden shadow-md group-hover:scale-105 group-hover:-rotate-2 transition-transform p-3" style={{ backgroundColor: c.color }}>
                   <div className="w-full h-full rounded-2xl overflow-hidden bg-white">
                     <img src={resolveImage(c.img)} alt={c.name} loading="lazy" width={600} height={600} className="w-full h-full object-cover" />
@@ -217,7 +217,7 @@ function Index() {
                 <div className="mt-3 text-center font-semibold text-sm sm:text-base text-foreground group-hover:text-coral transition">
                   {c.name}
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </div>
