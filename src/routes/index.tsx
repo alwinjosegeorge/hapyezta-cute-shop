@@ -1,3 +1,4 @@
+// Triggering Vercel deployment with minor code adjustment 🌸
 import { useState, useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, Heart, ShoppingBag, Star, Truck, Sparkles } from "lucide-react";
