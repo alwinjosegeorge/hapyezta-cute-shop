@@ -31,18 +31,9 @@ export interface Category {
   color: string;
 }
 
-const initialCategories: Category[] = [
-  { name: "Cute Stationery", img: c1, color: "var(--teal)" },
-  { name: "Pencil Cases", img: c2, color: "var(--coral)" },
-  { name: "Journal Supplies", img: c3, color: "var(--yellow)" },
-  { name: "Sling & School Bags", img: c4, color: "var(--purple)" },
-  { name: "Bottles & Tumblers", img: c5, color: "var(--orange)" },
-  { name: "Lunch Box", img: c6, color: "var(--coral)" },
-  { name: "Gift Sets", img: c7, color: "var(--teal)" },
-  { name: "Makeup Pouches", img: c8, color: "var(--purple)" },
-];
+const initialCategories: Category[] = [];
 
-const initialHeroImages = [hero, heroSlide1, heroSlide2, heroSlide3];
+const initialHeroImages: string[] = [];
 
 interface ProductContextType {
   products: Product[];

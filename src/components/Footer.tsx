@@ -83,7 +83,7 @@ function SocialIcons({ hoverBgClass }: { hoverBgClass: string }) {
 
       {/* WhatsApp Logo */}
       <a
-        href="https://wa.me/918921502990?text=Hello!%20I%20need%20help."
+        href="https://wa.me/918281251299?text=Hello!%20I%20need%20help."
         target="_blank"
         rel="noopener noreferrer"
         className={`group relative flex items-center justify-center p-1 rounded-xl transition-all duration-300 ${hoverBgClass}`}

@@ -152,7 +152,7 @@ function ControlPanel() {
           setCustomerProfiles(JSON.parse(stored));
         } else {
           const mockProfiles = [
-            { name: "Alwin Jose George", emoji: "🌸", email: "alwinjosegeorge2028@cs.sjcetpalai.ac.in", phone: "8921502990" }
+            { name: "Alwin Jose George", emoji: "🌸", email: "alwinjosegeorge2028@cs.sjcetpalai.ac.in", phone: "8281251299" }
           ];
           setCustomerProfiles(mockProfiles);
           localStorage.setItem("hapyezta-profiles", JSON.stringify(mockProfiles));
@@ -1649,6 +1649,8 @@ function ControlPanel() {
                             onChange={(val) => setProdTag(val)}
                             options={[
                               { value: "", label: "None" },
+                              { value: "Best Sellers", label: "Best Sellers" },
+                              { value: "New In", label: "New In" },
                               { value: "Sale", label: "Sale" },
                               { value: "New", label: "New" },
                               { value: "Hot", label: "Hot" },

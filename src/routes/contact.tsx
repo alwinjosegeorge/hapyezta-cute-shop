@@ -123,8 +123,8 @@ function Contact() {
                   <span className="block font-display text-base text-orange font-bold">
                     Phone
                   </span>
-                  <a href="tel:+918921502990" className="text-sm text-foreground/75 hover:text-coral transition font-body">
-                    +91 89215 02990
+                  <a href="tel:+918281251299" className="text-sm text-foreground/75 hover:text-coral transition font-body">
+                    +91 82812 51299
                   </a>
                 </div>
               </div>

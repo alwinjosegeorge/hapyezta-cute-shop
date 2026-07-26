@@ -38,7 +38,7 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({ child
       } else {
         // Initial default mock profile
         const mockProfiles = [
-          { name: "Alwin Jose George", emoji: "🌸", email: "alwinjosegeorge2028@cs.sjcetpalai.ac.in", phone: "8921502990" }
+          { name: "Alwin Jose George", emoji: "🌸", email: "alwinjosegeorge2028@cs.sjcetpalai.ac.in", phone: "8281251299" }
         ];
         setProfiles(mockProfiles);
         localStorage.setItem("hapyezta-profiles", JSON.stringify(mockProfiles));

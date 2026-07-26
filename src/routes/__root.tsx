@@ -164,7 +164,7 @@ function RootComponent() {
               {/* Floating WhatsApp Button for Mobile */}
               {!isAdminPage && (
                 <a
-                  href="https://wa.me/918921502990?text=Hello!%20I%20need%20help."
+                  href="https://wa.me/918281251299?text=Hello!%20I%20need%20help."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-4 z-40 lg:hidden flex items-center justify-center w-12 h-12 rounded-full bg-coral text-white shadow-[0_4px_16px_rgba(242,108,88,0.35)] hover:bg-coral/95 hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/20"
