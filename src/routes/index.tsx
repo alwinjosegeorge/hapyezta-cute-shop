@@ -88,11 +88,26 @@ function Index() {
 
   const displayedProducts = products.filter((p) => {
     if (activeFeaturedTab === "best") {
-      return p.tag === "Sale" || p.tag === "Hot" || p.id === "kawaii-bear-pen-holder" || p.id === "kawaii-water-bottle";
+      return (
+        p.tag === "Best Sellers" ||
+        p.tag === "Sale" ||
+        p.tag === "Hot" ||
+        p.id === "kawaii-bear-pen-holder" ||
+        p.id === "kawaii-water-bottle"
+      );
     } else {
-      return p.tag === "New" || p.id === "aesthetic-sticker-pack" || p.id === "girly-hearts-stickers" || p.id === "lavender-journal-kit";
+      return (
+        p.tag === "New In" ||
+        p.tag === "New" ||
+        p.id === "aesthetic-sticker-pack" ||
+        p.id === "girly-hearts-stickers" ||
+        p.id === "lavender-journal-kit" ||
+        p.id === "plush-bear-backpack"
+      );
     }
   });
+
+  const finalProducts = displayedProducts.length > 0 ? displayedProducts : products;
 
   useEffect(() => {
     if (bannerImages.length <= 1) return;
@@ -233,7 +248,7 @@ function Index() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {displayedProducts.slice(0, 4).map((p) => (
+            {finalProducts.slice(0, 4).map((p) => (
               <article key={p.name} className="bg-cream rounded-3xl overflow-hidden border-2 border-transparent hover:border-coral transition group flex flex-col justify-between">
                 <div className="relative aspect-square overflow-hidden bg-white">
                   {p.tag && (
