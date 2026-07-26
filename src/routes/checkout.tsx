@@ -5,6 +5,7 @@ import { useAccount } from "@/context/AccountContext";
 import { useProducts } from "@/context/ProductContext";
 import { calculateShippingCost } from "@/lib/products";
 import { createOrderFn } from "@/lib/api/db.functions";
+import { resolveImage } from "@/lib/image-resolver";
 import { Logo } from "@/components/Logo";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft, ShoppingBag, CheckCircle, CreditCard, Landmark, Truck } from "lucide-react";
@@ -641,7 +642,7 @@ function Checkout() {
                   {cartItems.map((item) => (
                     <div key={`${item.id}-${item.color}`} className="flex items-center gap-3 pt-3.5 first:pt-0">
                       <div className="w-14 h-14 rounded-xl border border-purple/10 overflow-hidden shrink-0 bg-cream/10">
-                        <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                        <img src={resolveImage(item.img)} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-xs text-foreground truncate" title={item.name}>

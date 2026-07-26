@@ -85,14 +85,14 @@ export async function initializeDatabase() {
     const catCountResult = await sql`SELECT COUNT(*)::integer FROM categories`;
     if (catCountResult[0].count === 0) {
       const initialCategories = [
-        { name: "Cute Stationery", img: base64Assets.c1, color: "var(--teal)" },
-        { name: "Pencil Cases", img: base64Assets.c2, color: "var(--coral)" },
-        { name: "Journal Supplies", img: base64Assets.c3, color: "var(--yellow)" },
-        { name: "Sling & School Bags", img: base64Assets.c4, color: "var(--purple)" },
-        { name: "Bottles & Tumblers", img: base64Assets.c5, color: "var(--orange)" },
-        { name: "Lunch Box", img: base64Assets.c6, color: "var(--coral)" },
-        { name: "Gift Sets", img: base64Assets.c7, color: "var(--teal)" },
-        { name: "Makeup Pouches", img: base64Assets.c8, color: "var(--purple)" },
+        { name: "Cute Stationery", img: "c1", color: "var(--teal)" },
+        { name: "Pencil Cases", img: "c2", color: "var(--coral)" },
+        { name: "Journal Supplies", img: "c3", color: "var(--yellow)" },
+        { name: "Sling & School Bags", img: "c4", color: "var(--purple)" },
+        { name: "Bottles & Tumblers", img: "c5", color: "var(--orange)" },
+        { name: "Lunch Box", img: "c6", color: "var(--coral)" },
+        { name: "Gift Sets", img: "c7", color: "var(--teal)" },
+        { name: "Makeup Pouches", img: "c8", color: "var(--purple)" },
       ];
       for (const cat of initialCategories) {
         await sql`
@@ -140,10 +140,10 @@ export async function initializeDatabase() {
     const heroCountResult = await sql`SELECT COUNT(*)::integer FROM hero_images`;
     if (heroCountResult[0].count === 0) {
       const initialHeroImages = [
-        base64Assets.hero,
-        base64Assets.hero_slide_1,
-        base64Assets.hero_slide_2,
-        base64Assets.hero_slide_3,
+        "hero",
+        "hero_slide_1",
+        "hero_slide_2",
+        "hero_slide_3",
       ];
       for (let i = 0; i < initialHeroImages.length; i++) {
         await sql`
