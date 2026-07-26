@@ -9,6 +9,22 @@ import c6 from "@/assets/c6.jpg";
 import c7 from "@/assets/c7.jpg";
 import c8 from "@/assets/c8.jpg";
 
+import hero from "@/assets/hero.jpg";
+import heroSlide1 from "@/assets/hero_slide_1.png";
+import heroSlide2 from "@/assets/hero_slide_2.png";
+import heroSlide3 from "@/assets/hero_slide_3.png";
+
+import {
+  getStoreData,
+  addProductFn,
+  updateProductFn,
+  deleteProductFn,
+  addCategoryFn,
+  updateCategoryFn,
+  deleteCategoryFn,
+  updateHeroImagesFn,
+} from "@/lib/api/db.functions";
+
 export interface Category {
   name: string;
   img: string;
@@ -26,13 +42,19 @@ const initialCategories: Category[] = [
   { name: "Makeup Pouches", img: c8, color: "var(--purple)" },
 ];
 
+const initialHeroImages = [hero, heroSlide1, heroSlide2, heroSlide3];
+
 interface ProductContextType {
   products: Product[];
   categories: Category[];
   addProduct: (product: Omit<Product, "id"> & { id?: string }) => void;
+  updateProduct: (product: Product) => void;
   addCategory: (category: Category) => void;
   deleteProduct: (id: string) => void;
   deleteCategory: (name: string) => void;
+  updateCategory: (oldName: string, updatedCategory: Category) => void;
+  heroImages: string[];
+  updateHeroImages: (images: string[]) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -40,66 +62,140 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [heroImages, setHeroImages] = useState<string[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load from localStorage on mount safely (client-only)
+  // Load from Neon PostgreSQL database on mount
   useEffect(() => {
-    try {
-      const storedProducts = localStorage.getItem("hapyezta-products");
-      const storedCategories = localStorage.getItem("hapyezta-categories");
-
-      if (storedProducts) {
-        setProducts(JSON.parse(storedProducts));
-      } else {
+    async function loadData() {
+      try {
+        const data = await getStoreData();
+        setProducts(data.products);
+        setCategories(data.categories);
+        setHeroImages(data.heroImages);
+      } catch (error) {
+        console.error("Failed to load store data from database, falling back to mock data:", error);
         setProducts(initialProducts);
-      }
-
-      if (storedCategories) {
-        setCategories(JSON.parse(storedCategories));
-      } else {
         setCategories(initialCategories);
+        setHeroImages(initialHeroImages);
       }
-    } catch (error) {
-      console.error("Failed to load products/categories from localStorage:", error);
-      setProducts(initialProducts);
-      setCategories(initialCategories);
+      setIsInitialized(true);
     }
-    setIsInitialized(true);
+    loadData();
   }, []);
 
-  // Save to localStorage whenever they change
-  useEffect(() => {
-    if (!isInitialized) return;
-    try {
-      localStorage.setItem("hapyezta-products", JSON.stringify(products));
-      localStorage.setItem("hapyezta-categories", JSON.stringify(categories));
-    } catch (error) {
-      console.error("Failed to save products/categories to localStorage:", error);
-    }
-  }, [products, categories, isInitialized]);
-
-  const addProduct = (newProduct: Omit<Product, "id"> & { id?: string }) => {
+  const addProduct = async (newProduct: Omit<Product, "id"> & { id?: string }) => {
     const id = newProduct.id || newProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const productWithId = { ...newProduct, id } as Product;
+    
+    // Optimistic update
     setProducts((prev) => [...prev, productWithId]);
+    
+    try {
+      await addProductFn({
+        ...newProduct,
+        id,
+        stockStatus: newProduct.stockStatus,
+        colors: newProduct.colors,
+        details: newProduct.details,
+      });
+    } catch (err) {
+      console.error("Failed to save product to database:", err);
+    }
   };
 
-  const addCategory = (newCategory: Category) => {
+  const updateProduct = async (updatedProduct: Product) => {
+    // Optimistic update
+    setProducts((prev) =>
+      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+    );
+
+    try {
+      await updateProductFn({
+        ...updatedProduct,
+        stockStatus: updatedProduct.stockStatus,
+      });
+    } catch (err) {
+      console.error("Failed to update product in database:", err);
+    }
+  };
+
+  const addCategory = async (newCategory: Category) => {
+    // Optimistic update
     setCategories((prev) => {
-      // Prevent duplicates by name
       if (prev.some((c) => c.name.toLowerCase() === newCategory.name.toLowerCase())) {
         return prev;
       }
       return [...prev, newCategory];
     });
+
+    try {
+      await addCategoryFn(newCategory);
+    } catch (err) {
+      console.error("Failed to add category to database:", err);
+    }
   };
 
-  const deleteProduct = (id: string) => {
+  const deleteProduct = async (id: string) => {
+    // Optimistic update
     setProducts((prev) => prev.filter((p) => p.id !== id));
+
+    try {
+      await deleteProductFn({ id });
+    } catch (err) {
+      console.error("Failed to delete product from database:", err);
+    }
   };
 
-  const deleteCategory = (name: string) => {
-    setCategories((prev) => prev.filter((c) => c.name !== name));
+  const deleteCategory = async (name: string) => {
+    // Optimistic update
+    setCategories((prev) => {
+      const remaining = prev.filter((c) => c.name !== name);
+      const defaultCat = remaining[0]?.name || "Cute Stationery";
+      setProducts((productsPrev) =>
+        productsPrev.map((p) =>
+          p.category.toLowerCase() === name.toLowerCase() ? { ...p, category: defaultCat } : p
+        )
+      );
+      return remaining;
+    });
+
+    try {
+      await deleteCategoryFn({ name });
+    } catch (err) {
+      console.error("Failed to delete category from database:", err);
+    }
+  };
+
+  const updateCategory = async (oldName: string, updatedCategory: Category) => {
+    // Optimistic update
+    setCategories((prev) =>
+      prev.map((c) => (c.name.toLowerCase() === oldName.toLowerCase() ? updatedCategory : c))
+    );
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.category.toLowerCase() === oldName.toLowerCase()
+          ? { ...p, category: updatedCategory.name }
+          : p
+      )
+    );
+
+    try {
+      await updateCategoryFn({ oldName, updatedCategory });
+    } catch (err) {
+      console.error("Failed to update category in database:", err);
+    }
+  };
+
+  const updateHeroImages = async (newImages: string[]) => {
+    // Optimistic update
+    setHeroImages(newImages);
+
+    try {
+      await updateHeroImagesFn(newImages);
+    } catch (err) {
+      console.error("Failed to update hero images in database:", err);
+    }
   };
 
   return (
@@ -108,9 +204,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         products,
         categories,
         addProduct,
+        updateProduct,
         addCategory,
         deleteProduct,
         deleteCategory,
+        updateCategory,
+        heroImages,
+        updateHeroImages,
       }}
     >
       {children}
@@ -121,6 +221,20 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 export const useProducts = () => {
   const context = useContext(ProductContext);
   if (context === undefined) {
+    if (typeof window === "undefined") {
+      return {
+        products: [],
+        categories: [],
+        heroImages: [],
+        addProduct: () => {},
+        updateProduct: () => {},
+        addCategory: () => {},
+        deleteProduct: () => {},
+        deleteCategory: () => {},
+        updateCategory: () => {},
+        updateHeroImages: () => {},
+      };
+    }
     throw new Error("useProducts must be used within a ProductProvider");
   }
   return context;

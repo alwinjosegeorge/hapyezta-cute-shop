@@ -7,17 +7,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { User, Package, Settings, LogOut, ArrowLeft, Award, Sparkles, Heart } from "lucide-react";
+import { User, Package, Settings, LogOut, ArrowLeft, Award, Sparkles, Heart, Image as ImageIcon } from "lucide-react";
+import { getUserOrdersFn, getOrdersFn } from "@/lib/api/db.functions";
 
 export function AccountDialogs() {
   const {
     isAccountOpen,
     closeAccount,
+    isLoggedIn,
     profileName,
     profileEmoji,
     profileEmail,
     profilePhone,
+    loginWithPhone,
     saveProfile,
+    logout,
   } = useAccount();
 
   // Desktop active tab: 'overview' | 'track' | 'settings'
@@ -35,6 +39,56 @@ export function AccountDialogs() {
   const [editEmail, setEditEmail] = useState(profileEmail);
   const [editPhone, setEditPhone] = useState(profilePhone);
 
+  // Login flow states: 'phone-input' | 'register'
+  const [loginStep, setLoginStep] = useState<"phone-input" | "register">("phone-input");
+  const [inputPhone, setInputPhone] = useState("");
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerEmoji, setRegisterEmoji] = useState("🌸");
+  const [loginError, setLoginError] = useState("");
+
+  // Customer statistics calculations
+  const [ordersCount, setOrdersCount] = useState(0);
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [userOrders, setUserOrders] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadUserOrders() {
+      if (isLoggedIn && profilePhone) {
+        try {
+          const dbOrders = await getUserOrdersFn({ phone: profilePhone });
+          setUserOrders(dbOrders);
+          setOrdersCount(dbOrders.length);
+          const total = dbOrders.reduce((sum: number, o: any) => sum + (o.grandTotal || 0), 0);
+          setTotalSpent(total);
+        } catch (e) {
+          console.error("Failed to load user orders from db:", e);
+          try {
+            const stored = localStorage.getItem("hapyezta-orders");
+            if (stored) {
+              const orders = JSON.parse(stored);
+              const cleanPhone = profilePhone.replace(/\D/g, "");
+              const matchedOrders = orders.filter(
+                (o: any) => o.customerPhone && o.customerPhone.replace(/\D/g, "") === cleanPhone
+              );
+              setUserOrders(matchedOrders);
+              setOrdersCount(matchedOrders.length);
+              const total = matchedOrders.reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0);
+              setTotalSpent(total);
+            }
+          } catch (localErr) {
+            console.error(localErr);
+          }
+        }
+      } else {
+        setUserOrders([]);
+        setOrdersCount(0);
+        setTotalSpent(0);
+      }
+    }
+    loadUserOrders();
+  }, [isLoggedIn, profilePhone, isAccountOpen]);
+
   // Sync edits when profile values change
   useEffect(() => {
     setEditName(profileName);
@@ -51,8 +105,49 @@ export function AccountDialogs() {
       setTrackOrderId("");
       setTrackingResult(null);
       setTrackError("");
+      
+      setLoginStep("phone-input");
+      setInputPhone("");
+      setRegisterName("");
+      setRegisterEmail("");
+      setLoginError("");
     }
   }, [isAccountOpen]);
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    const clean = inputPhone.replace(/\D/g, "");
+    if (!clean || clean.length < 10) {
+      setLoginError("Please enter a valid 10-digit number! 🌸");
+      return;
+    }
+
+    const success = loginWithPhone(clean);
+    if (success) {
+      setInputPhone("");
+    } else {
+      setLoginStep("register");
+      setRegisterEmoji("🌸");
+      setRegisterName("");
+      setRegisterEmail("");
+    }
+  };
+
+  const handleRegisterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    if (!registerName.trim()) {
+      setLoginError("Please enter your name! 🌸");
+      return;
+    }
+    const clean = inputPhone.replace(/\D/g, "");
+    if (!clean) return;
+    
+    saveProfile(registerName.trim(), registerEmoji, registerEmail.trim(), clean);
+    setLoginStep("phone-input");
+    setInputPhone("");
+  };
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +158,7 @@ export function AccountDialogs() {
     }
   };
 
-  const handleTrackSubmit = (e: React.FormEvent) => {
+  const handleTrackOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTrackError("");
     setTrackingResult(null);
@@ -74,34 +169,45 @@ export function AccountDialogs() {
     }
 
     try {
-      const stored = localStorage.getItem("hapyezta-orders");
-      if (stored) {
-        const orders = JSON.parse(stored);
-        const matched = orders.find(
-          (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
-        );
-        if (matched) {
-          setTrackingResult(matched);
-        } else {
-          setTrackError("No order found with this ID. 😿 Please check spelling!");
-        }
+      const dbOrders = await getOrdersFn();
+      const matched = dbOrders.find(
+        (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
+      );
+      if (matched) {
+        setTrackingResult(matched);
       } else {
-        setTrackError("No orders placed on this device yet! 🌸");
+        setTrackError("No order found with this ID. 😿 Please check spelling!");
       }
     } catch (err) {
       console.error(err);
-      setTrackError("Something went wrong. Please try again!");
+      try {
+        const stored = localStorage.getItem("hapyezta-orders");
+        if (stored) {
+          const orders = JSON.parse(stored);
+          const matched = orders.find(
+            (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
+          );
+          if (matched) {
+            setTrackingResult(matched);
+            return;
+          }
+        }
+        setTrackError("Something went wrong. Please try again!");
+      } catch (localErr) {
+        setTrackError("Something went wrong. Please try again!");
+      }
     }
   };
 
   const handleLogout = () => {
+    logout();
     alert("Logged out successfully. See you soon! 🌸");
     closeAccount();
   };
 
-  // Shared Track Orders Form Component
-  const renderTrackForm = () => (
-    <div className="space-y-4 font-body">
+  const renderTrackForm = () => {
+    return (
+      <div className="space-y-4 font-body">
       <form onSubmit={handleTrackSubmit} className="space-y-3">
         <label className="block text-xs font-bold text-purple uppercase tracking-wider text-left">
           Enter Order ID
@@ -177,12 +283,12 @@ export function AccountDialogs() {
         </div>
       )}
     </div>
-  );
+    );
+  };
 
-  // Shared Account Settings Form Component
-  const renderSettingsForm = () => (
-    <form onSubmit={handleSaveSettings} className="space-y-4 font-body">
-      {/* Avatar Picker */}
+  const renderSettingsForm = () => {
+    return (
+      <form onSubmit={handleSaveSettings} className="space-y-4 font-body">
       <div>
         <label className="block text-xs font-bold text-purple uppercase tracking-wider mb-1.5 text-left">
           Choose Avatar Icon
@@ -203,7 +309,6 @@ export function AccountDialogs() {
         </div>
       </div>
 
-      {/* Inputs */}
       <div className="space-y-3">
         <div className="space-y-1 text-left">
           <label className="block text-xs font-bold text-purple uppercase tracking-wider">
@@ -252,271 +357,467 @@ export function AccountDialogs() {
         Save Changes
       </button>
     </form>
+    );
+  };
+
+  const renderOrdersList = () => {
+    if (userOrders.length === 0) {
+      return (
+        <div className="text-center py-6 bg-cream/20 rounded-2xl border border-purple/5">
+          <p className="text-xs text-purple/60">No orders placed yet! 🛒</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <h5 className="font-display font-bold text-xs text-purple uppercase tracking-wider text-left">
+          🛍️ Order History & Tracking
+        </h5>
+        <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+          {userOrders.map((order: any) => {
+            const itemCount = order.items?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0;
+            const status = order.status || "pending";
+            return (
+              <div key={order.id} className="p-3.5 bg-white rounded-2xl border border-purple/10 space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] text-left">
+                <div className="flex justify-between items-start gap-2">
+                  <div>
+                    <span className="block font-bold text-purple text-xs">{order.id}</span>
+                    <span className="block text-[9px] text-foreground/40 font-body">
+                      {new Date(order.date).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })} • {itemCount} {itemCount === 1 ? "item" : "items"}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block font-bold text-coral text-xs">₹{order.totalAmount}</span>
+                    <span className="inline-block mt-0.5 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider capitalize bg-purple/10 text-purple">
+                      {status}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Timeline Progress Bar */}
+                <div className="space-y-1">
+                  <div className="relative flex justify-between text-[8px] font-semibold text-purple/70">
+                    <span className="z-10 bg-white px-1">Placed</span>
+                    <span className={`z-10 bg-white px-1 ${status !== "pending" ? "text-purple" : "text-foreground/30"}`}>Shipped</span>
+                    <span className={`z-10 bg-white px-1 ${status === "delivered" ? "text-purple" : "text-foreground/30"}`}>Delivered</span>
+                    <div className="absolute top-[5px] left-2 right-2 h-0.5 bg-purple/10 -z-10" />
+                    <div
+                      className="absolute top-[5px] left-2 h-0.5 bg-coral transition-all -z-10"
+                      style={{
+                        width: status === "delivered" ? "95%" : status === "shipped" ? "50%" : "5%"
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const renderLoginView = () => (
+    <div className="p-4 space-y-6 text-center max-w-sm mx-auto animate-fade-in font-body">
+      {loginStep === "phone-input" ? (
+        <form onSubmit={handleLoginSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <div className="text-4xl select-none animate-bounce">✨</div>
+            <h3 className="font-display text-2xl text-purple font-bold">Hapyezta Login</h3>
+            <p className="text-xs text-foreground/50 leading-relaxed">
+              Enter your mobile number to view orders, track packages, and collect sparkles! 🌸
+            </p>
+          </div>
+
+          <div className="space-y-1.5 text-left">
+            <label className="block text-xs font-bold text-purple uppercase tracking-wider">
+              Phone Number *
+            </label>
+            <input
+              type="tel"
+              required
+              placeholder="e.g. 9876543210"
+              value={inputPhone}
+              onChange={(e) => setInputPhone(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl bg-white border-2 border-purple/10 focus:border-coral outline-none text-purple font-semibold text-sm transition animate-fade-in"
+            />
+          </div>
+
+          {loginError && (
+            <p className="text-xs text-coral font-semibold bg-coral/10 py-2 px-3 rounded-xl">
+              🌸 {loginError}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-3.5 rounded-full bg-purple hover:bg-purple/95 text-white font-bold transition-all shadow-[0_4px_0_0_#654388] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#654388] cursor-pointer text-xs font-display uppercase tracking-wider"
+          >
+            Continue
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleRegisterSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <div className="text-4xl select-none animate-pulse">🎁</div>
+            <h3 className="font-display text-2xl text-purple font-bold">Join Hapyezta</h3>
+            <p className="text-xs text-foreground/50 leading-relaxed">
+              Create your profile to start saving and tracking! 💖
+            </p>
+          </div>
+
+          {/* Emoji picker row */}
+          <div className="space-y-1.5 text-left">
+            <label className="block text-xs font-bold text-purple uppercase tracking-wider">
+              Choose Avatar Emoji *
+            </label>
+            <div className="flex justify-between p-2.5 bg-white rounded-2xl border-2 border-purple/10">
+              {["🌸", "🎀", "🧸", "🐱", "🐰", "🐼", "✨"].map((em) => (
+                <button
+                  key={em}
+                  type="button"
+                  onClick={() => setRegisterEmoji(em)}
+                  className={`text-2xl p-1 hover:scale-110 transition cursor-pointer rounded-lg ${
+                    registerEmoji === em ? "bg-cream border border-purple/20 shadow-sm scale-110" : ""
+                  }`}
+                >
+                  {em}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Name */}
+          <div className="space-y-1.5 text-left">
+            <label className="block text-xs font-bold text-purple uppercase tracking-wider">
+              Your Name *
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Ananya Sharma"
+              value={registerName}
+              onChange={(e) => setRegisterName(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl bg-white border-2 border-purple/10 focus:border-coral outline-none text-sm transition"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="space-y-1.5 text-left">
+            <label className="block text-xs font-bold text-purple uppercase tracking-wider">
+              Email Address
+            </label>
+            <input
+              type="email"
+              placeholder="e.g. ananya@kawaii.com"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-2xl bg-white border-2 border-purple/10 focus:border-coral outline-none text-sm transition"
+            />
+          </div>
+
+          {/* Phone (pre-filled, disabled style) */}
+          <div className="space-y-1.5 text-left opacity-70">
+            <label className="block text-xs font-bold text-purple uppercase tracking-wider">
+              Phone Number
+            </label>
+            <input
+              type="text"
+              disabled
+              value={inputPhone}
+              className="w-full px-4 py-3 rounded-2xl bg-cream/35 border-2 border-purple/5 outline-none text-sm cursor-not-allowed"
+            />
+          </div>
+
+          {loginError && (
+            <p className="text-xs text-coral font-semibold bg-coral/10 py-2 px-3 rounded-xl">
+              🌸 {loginError}
+            </p>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setLoginStep("phone-input")}
+              className="flex-1 py-3 rounded-full border-2 border-purple/10 text-purple font-bold hover:bg-cream transition cursor-pointer text-xs font-display uppercase tracking-wider"
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3 rounded-full bg-purple hover:bg-purple/95 text-white font-bold shadow-[0_4px_0_0_#654388] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#654388] transition-all cursor-pointer text-xs font-display uppercase tracking-wider"
+            >
+              Sign Up
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 
   return (
     <Dialog open={isAccountOpen} onOpenChange={(open) => !open && closeAccount()}>
-      {/* 
-        Responsive Dialog sizing: 
-        - Mobile: max-w-[400px] / vertical stack
-        - Desktop (md): max-w-[800px] / beautiful horizontal split layout
-      */}
-      <DialogContent className="w-[95vw] md:max-w-[800px] rounded-[2.2rem] p-0 overflow-hidden bg-cream border-2 border-yellow/20 z-[60] shadow-2xl">
+      <DialogContent className={`w-[95vw] rounded-[2.2rem] overflow-hidden bg-cream border-2 border-yellow/20 z-[60] shadow-2xl transition-all duration-300 ${
+        isLoggedIn ? "md:max-w-[800px] p-0" : "max-w-[450px] p-6"
+      }`}>
         <DialogHeader className="sr-only">
-          <DialogTitle>Kawaii Club Profile Dashboard</DialogTitle>
+          <DialogTitle>Hapyezta Profile Dashboard</DialogTitle>
         </DialogHeader>
 
-        {/* ========================================================================= */}
-        {/* DESKTOP SPLIT DASHBOARD LAYOUT (hidden on mobile, visible md+) */}
-        {/* ========================================================================= */}
-        <div className="hidden md:grid grid-cols-12 min-h-[480px]">
-          {/* LEFT PANEL: Profile Summary & Stats */}
-          <div className="col-span-5 bg-gradient-to-b from-yellow/20 via-coral/5 to-purple/5 p-8 flex flex-col justify-between border-r border-purple/5 text-center relative">
-            <div className="space-y-5">
-              {/* Pulsing avatar & ring */}
-              <div className="relative w-28 h-28 mx-auto mt-4">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-coral to-purple opacity-20 animate-pulse scale-110" />
-                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-coral to-purple grid place-items-center text-4xl border-4 border-white shadow-lg select-none relative z-10 animate-bounce">
-                  {profileEmoji}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-display text-xl text-purple font-bold tracking-wide">
-                  {profileName}
-                </h3>
-                <p className="text-[11px] text-purple/60 font-body">Member since May 2026</p>
-              </div>
-
-              {/* Sparkle badge */}
-              <div className="inline-flex items-center gap-1.5 bg-yellow/30 text-purple text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mx-auto">
-                👑 Sparkle VIP Member
-              </div>
-            </div>
-
-            {/* Kawaii Club Stats Grid */}
-            <div className="grid grid-cols-3 gap-2 mt-6 bg-white/70 backdrop-blur-sm p-4 rounded-3xl border border-purple/5 shadow-sm">
-              <div className="text-center">
-                <span className="block font-display text-base text-coral font-bold">₹4.2k</span>
-                <span className="text-[9px] font-bold text-purple/50 uppercase font-body">Saved</span>
-              </div>
-              <div className="text-center border-x border-purple/5">
-                <span className="block font-display text-base text-teal font-bold">6</span>
-                <span className="text-[9px] font-bold text-purple/50 uppercase font-body">Orders</span>
-              </div>
-              <div className="text-center">
-                <span className="block font-display text-base text-purple font-bold">420</span>
-                <span className="text-[9px] font-bold text-purple/50 uppercase font-body">Points</span>
-              </div>
-            </div>
-
-            <div className="text-[10px] text-muted-foreground/60 font-body">
-              🌸 Handcrafted with love by Hapyezta
-            </div>
-          </div>
-
-          {/* RIGHT PANEL: Workspace Pane */}
-          <div className="col-span-7 p-8 flex flex-col justify-between">
-            {/* Header Tabs */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-purple/5 pb-3">
-                <h4 className="font-display text-2xl text-purple font-bold flex items-center gap-2">
-                  {activeTab === "overview" && "🏠 Welcome Back!"}
-                  {activeTab === "track" && "📦 Track Order"}
-                  {activeTab === "settings" && "⚙️ Profile Settings"}
-                </h4>
-              </div>
-
-              {/* Tab Navigation Menu */}
-              <div className="flex gap-1.5 bg-cream/80 p-1 rounded-full border border-purple/5 text-xs font-semibold text-purple">
-                <button
-                  onClick={() => setActiveTab("overview")}
-                  className={`flex-1 py-2 px-3 rounded-full transition flex items-center justify-center gap-1 cursor-pointer border-none bg-transparent ${
-                    activeTab === "overview" ? "bg-white text-coral shadow-sm font-bold" : "hover:text-coral"
-                  }`}
-                >
-                  <User className="w-3.5 h-3.5" />
-                  Overview
-                </button>
-                <button
-                  onClick={() => setActiveTab("track")}
-                  className={`flex-1 py-2 px-3 rounded-full transition flex items-center justify-center gap-1 cursor-pointer border-none bg-transparent ${
-                    activeTab === "track" ? "bg-white text-coral shadow-sm font-bold" : "hover:text-coral"
-                  }`}
-                >
-                  <Package className="w-3.5 h-3.5" />
-                  Track Order
-                </button>
-                <button
-                  onClick={() => setActiveTab("settings")}
-                  className={`flex-1 py-2 px-3 rounded-full transition flex items-center justify-center gap-1 cursor-pointer border-none bg-transparent ${
-                    activeTab === "settings" ? "bg-white text-coral shadow-sm font-bold" : "hover:text-coral"
-                  }`}
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  Settings
-                </button>
-              </div>
-
-              {/* Workspace Content Display */}
-              <div className="pt-2 min-h-[260px]">
-                {activeTab === "overview" && (
-                  <div className="space-y-4 text-left font-body animate-fade-in">
-                    <p className="text-sm text-foreground/80 leading-relaxed">
-                      Hi <span className="font-bold text-purple">{profileName}</span>! Welcome back to your kawaii clubhouse. 🌸 We've added fresh stickers and stationery treasures since your last visit.
-                    </p>
-
-                    {/* Cute rewards card */}
-                    <div className="bg-yellow/10 border-2 border-dashed border-yellow/45 rounded-2xl p-4 flex items-start gap-3">
-                      <Award className="w-9 h-9 text-coral shrink-0 mt-0.5 animate-bounce" />
-                      <div className="space-y-1">
-                        <span className="block text-xs font-bold text-purple uppercase tracking-wider">
-                          Next Club Reward: Free Washi Tape Set 🎀
-                        </span>
-                        <div className="w-full bg-purple/10 h-2.5 rounded-full overflow-hidden mt-1.5">
-                          <div className="bg-gradient-to-r from-coral to-yellow h-full rounded-full w-[80%]" />
-                        </div>
-                        <span className="block text-[10px] text-muted-foreground">
-                          420 / 500 Sparkles collected • Just 80 more points to redeem!
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <div className="flex-1 p-3 bg-teal/5 border border-teal/10 rounded-2xl flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-teal" />
-                        <span className="text-xs text-purple/90">Free shipping tier active</span>
-                      </div>
-                      <div className="flex-1 p-3 bg-coral/5 border border-coral/10 rounded-2xl flex items-center gap-2">
-                        <Heart className="w-4 h-4 text-coral fill-coral/10" />
-                        <span className="text-xs text-purple/90">Curated kawaii picks</span>
-                      </div>
+        {!isLoggedIn ? (
+          renderLoginView()
+        ) : (
+          <>
+            {/* ========================================================================= */}
+            {/* DESKTOP SPLIT DASHBOARD LAYOUT (hidden on mobile, visible md+) */}
+            {/* ========================================================================= */}
+            <div className="hidden md:grid grid-cols-12 min-h-[480px]">
+              {/* LEFT PANEL: Profile Summary & Stats */}
+              <div className="col-span-5 bg-gradient-to-b from-yellow/20 via-coral/5 to-purple/5 p-8 flex flex-col justify-between border-r border-purple/5 text-center relative">
+                <div className="space-y-5">
+                  <div className="relative w-28 h-28 mx-auto mt-4">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-coral to-purple opacity-20 animate-pulse scale-110" />
+                    <div className="w-28 h-28 rounded-full bg-gradient-to-br from-coral to-purple grid place-items-center text-4xl border-4 border-white shadow-lg select-none relative z-10 animate-bounce">
+                      {profileEmoji}
                     </div>
                   </div>
-                )}
 
-                {activeTab === "track" && renderTrackForm()}
+                  <div>
+                    <h3 className="font-display text-xl text-purple font-bold tracking-wide">
+                      {profileName}
+                    </h3>
+                    <p className="text-[11px] text-purple/60 font-body">Member since May 2026</p>
+                  </div>
 
-                {activeTab === "settings" && renderSettingsForm()}
-              </div>
-            </div>
-
-            {/* Logout button footer */}
-            <div className="border-t border-purple/5 pt-4 flex justify-end">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-red-500 hover:bg-red-50 transition text-xs font-bold cursor-pointer border-none bg-transparent"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                Log Out
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* MOBILE PORTRAIT DASHBOARD LAYOUT (hidden on desktop, visible mobile/tablet) */}
-        {/* ========================================================================= */}
-        <div className="block md:hidden p-6 max-h-[85vh] overflow-y-auto">
-          {mobileView === "menu" && (
-            <div className="space-y-5">
-              <div className="pb-2 border-b border-purple/5">
-                <h4 className="font-display text-2xl text-purple text-center font-bold">
-                  ✨ Kawaii Club Profile
-                </h4>
-              </div>
-
-              {/* Mobile Profile Card */}
-              <div className="bg-white rounded-3xl p-5 border border-purple/10 shadow-sm text-center">
-                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-coral to-purple grid place-items-center text-3xl mb-3 border-4 border-cream shadow-md select-none animate-bounce">
-                  {profileEmoji}
-                </div>
-                <h3 className="font-display text-lg text-purple font-bold text-center">
-                  {profileName}
-                </h3>
-                <p className="text-[10px] text-muted-foreground text-center">Member since May 2026</p>
-
-                {/* VIP badge */}
-                <div className="flex justify-center mt-3">
                   <div className="inline-flex items-center gap-1.5 bg-yellow/30 text-purple text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mx-auto">
                     👑 Sparkle VIP Member
                   </div>
                 </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-purple/5">
-                  <div>
-                    <span className="block font-display text-base text-coral font-bold">₹4,250</span>
-                    <span className="text-[10px] text-purple/50 uppercase font-bold font-body">Saved</span>
+                {/* Hapyezta Stats Grid */}
+                <div className="grid grid-cols-2 gap-2 mt-6 bg-white/70 backdrop-blur-sm p-4 rounded-3xl border border-purple/5 shadow-sm">
+                  <div className="text-center">
+                    <span className="block font-display text-base text-coral font-bold">₹{totalSpent}</span>
+                    <span className="text-[9px] font-bold text-purple/50 uppercase font-body">Spent</span>
                   </div>
-                  <div>
-                    <span className="block font-display text-base text-teal font-bold">6 Orders</span>
-                    <span className="text-[10px] text-purple/50 uppercase font-bold font-body">Placed</span>
+                  <div className="text-center border-l border-purple/5">
+                    <span className="block font-display text-base text-teal font-bold">{ordersCount}</span>
+                    <span className="text-[9px] font-bold text-purple/50 uppercase font-body">Orders</span>
                   </div>
+                </div>
+
+                <div className="text-[10px] text-muted-foreground/60 font-body">
+                  🌸 Handcrafted with love by Hapyezta
                 </div>
               </div>
 
-              {/* Mobile Menu Action List */}
-              <div className="bg-white rounded-2xl p-2 border border-purple/10 shadow-sm space-y-1 text-sm font-body">
-                <button
-                  onClick={() => setMobileView("track")}
-                  className="w-full text-left px-4 py-3 rounded-xl hover:bg-cream hover:text-coral transition font-semibold text-purple cursor-pointer border-none bg-transparent flex items-center gap-2"
-                >
-                  <Package className="w-4 h-4 text-purple" />
-                  📦 Track My Orders
-                </button>
+              {/* RIGHT PANEL: Workspace Pane */}
+              <div className="col-span-7 p-8 flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-purple/5 pb-3">
+                    <h4 className="font-display text-2xl text-purple font-bold flex items-center gap-2">
+                      {activeTab === "overview" && "🏠 Welcome Back!"}
+                      {activeTab === "track" && "📦 Track Order"}
+                      {activeTab === "settings" && "⚙️ Profile Settings"}
+                    </h4>
+                  </div>
 
-                <button
-                  onClick={() => setMobileView("settings")}
-                  className="w-full text-left px-4 py-3 rounded-xl hover:bg-cream hover:text-coral transition font-semibold text-purple cursor-pointer border-none bg-transparent flex items-center gap-2"
-                >
-                  <Settings className="w-4 h-4 text-purple" />
-                  ⚙️ Account Settings
-                </button>
+                  {/* Tab Navigation Menu */}
+                  <div className="flex gap-1.5 bg-cream/80 p-1 rounded-full border border-purple/5 text-xs font-semibold text-purple">
+                    <button
+                      onClick={() => setActiveTab("overview")}
+                      className={`flex-1 py-2 px-3 rounded-full transition flex items-center justify-center gap-1 cursor-pointer border-none bg-transparent ${
+                        activeTab === "overview" ? "bg-white text-coral shadow-sm font-bold" : "hover:text-coral"
+                      }`}
+                    >
+                      <User className="w-3.5 h-3.5" />
+                      Overview
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("track")}
+                      className={`flex-1 py-2 px-3 rounded-full transition flex items-center justify-center gap-1 cursor-pointer border-none bg-transparent ${
+                        activeTab === "track" ? "bg-white text-coral shadow-sm font-bold" : "hover:text-coral"
+                      }`}
+                    >
+                      <Package className="w-3.5 h-3.5" />
+                      Track Order
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("settings")}
+                      className={`flex-1 py-2 px-3 rounded-full transition flex items-center justify-center gap-1 cursor-pointer border-none bg-transparent ${
+                        activeTab === "settings" ? "bg-white text-coral shadow-sm font-bold" : "hover:text-coral"
+                      }`}
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                      Settings
+                    </button>
+                  </div>
 
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-500 transition font-semibold text-red-400 cursor-pointer border-none bg-transparent flex items-center gap-2"
-                >
-                  <LogOut className="w-4 h-4 text-red-400" />
-                  🚪 Log Out
-                </button>
+                  {/* Workspace Content Display */}
+                  <div className="pt-2 min-h-[260px]">
+                    {activeTab === "overview" && (
+                      <div className="space-y-4 text-left font-body animate-fade-in">
+                        <p className="text-sm text-foreground/80 leading-relaxed">
+                          Hi <span className="font-bold text-purple">{profileName}</span>! Welcome back to your kawaii clubhouse. 🌸 We've added fresh stickers and stationery treasures since your last visit.
+                        </p>
+
+                        <div className="bg-yellow/10 border-2 border-dashed border-yellow/45 rounded-2xl p-4 flex items-start gap-3">
+                          <Award className="w-9 h-9 text-coral shrink-0 mt-0.5 animate-bounce" />
+                          <div className="space-y-1">
+                            <span className="block text-xs font-bold text-purple uppercase tracking-wider">
+                              Next Club Reward: Free Washi Tape Set 🎀
+                            </span>
+                            <div className="w-full bg-purple/10 h-2.5 rounded-full overflow-hidden mt-1.5">
+                              <div className="bg-gradient-to-r from-coral to-yellow h-full rounded-full w-[80%]" />
+                            </div>
+                            <span className="block text-[10px] text-muted-foreground">
+                              {ordersCount * 50} / 500 Sparkles collected • Just {Math.max(0, 500 - ordersCount * 50)} more points to redeem!
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <div className="flex-1 p-3 bg-teal/5 border border-teal/10 rounded-2xl flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-teal" />
+                            <span className="text-xs text-purple/90">Free shipping tier active</span>
+                          </div>
+                          <div className="flex-1 p-3 bg-coral/5 border border-coral/10 rounded-2xl flex items-center gap-2">
+                            <Heart className="w-4 h-4 text-coral fill-coral/10" />
+                            <span className="text-xs text-purple/90">Curated kawaii picks</span>
+                          </div>
+                        </div>
+
+                        {renderOrdersList()}
+                      </div>
+                    )}
+
+                    {activeTab === "track" && renderTrackForm()}
+
+                    {activeTab === "settings" && renderSettingsForm()}
+                  </div>
+                </div>
+
+                {/* Logout button footer */}
+                <div className="border-t border-purple/5 pt-4 flex justify-end">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-red-500 hover:bg-red-50 transition text-xs font-bold cursor-pointer border-none bg-transparent"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    Log Out
+                  </button>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* Mobile Track Order view */}
-          {mobileView === "track" && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-purple/5 pb-3">
-                <button
-                  onClick={() => setMobileView("menu")}
-                  className="p-1.5 hover:bg-cream rounded-full transition text-purple cursor-pointer border-none bg-transparent"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <h4 className="font-display text-xl text-purple font-bold">Track Order</h4>
-              </div>
-              {renderTrackForm()}
-            </div>
-          )}
+            {/* ========================================================================= */}
+            {/* MOBILE PORTRAIT DASHBOARD LAYOUT (hidden on desktop, visible mobile/tablet) */}
+            {/* ========================================================================= */}
+            <div className="block md:hidden p-6 max-h-[85vh] overflow-y-auto">
+              {mobileView === "menu" && (
+                <div className="space-y-5">
+                  <div className="pb-2 border-b border-purple/5">
+                    <h4 className="font-display text-2xl text-purple text-center font-bold">
+                      ✨ Hapyezta Profile
+                    </h4>
+                  </div>
 
-          {/* Mobile Settings view */}
-          {mobileView === "settings" && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-purple/5 pb-3">
-                <button
-                  onClick={() => setMobileView("menu")}
-                  className="p-1.5 hover:bg-cream rounded-full transition text-purple cursor-pointer border-none bg-transparent"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <h4 className="font-display text-xl text-purple font-bold">Edit Profile</h4>
-              </div>
-              {renderSettingsForm()}
+                  {/* Mobile Profile Card */}
+                  <div className="bg-white rounded-3xl p-5 border border-purple/10 shadow-sm text-center">
+                    <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-coral to-purple grid place-items-center text-3xl mb-3 border-4 border-cream shadow-md select-none animate-bounce">
+                      {profileEmoji}
+                    </div>
+                    <h3 className="font-display text-lg text-purple font-bold text-center">
+                      {profileName}
+                    </h3>
+                    <p className="text-[10px] text-muted-foreground text-center">Member since May 2026</p>
+
+                    {/* VIP badge */}
+                    <div className="flex justify-center mt-3">
+                      <div className="inline-flex items-center gap-1.5 bg-yellow/30 text-purple text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mx-auto">
+                        👑 Sparkle VIP Member
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-purple/5">
+                      <div>
+                        <span className="block font-display text-base text-coral font-bold">₹{totalSpent}</span>
+                        <span className="text-[10px] text-purple/50 uppercase font-bold font-body">Spent</span>
+                      </div>
+                      <div>
+                        <span className="block font-display text-base text-teal font-bold">{ordersCount} Orders</span>
+                        <span className="text-[10px] text-purple/50 uppercase font-bold font-body">Placed</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {renderOrdersList()}
+
+                  {/* Mobile Menu Action List */}
+                  <div className="bg-white rounded-2xl p-2 border border-purple/10 shadow-sm space-y-1 text-sm font-body">
+                    <button
+                      onClick={() => setMobileView("track")}
+                      className="w-full text-left px-4 py-3 rounded-xl hover:bg-cream hover:text-coral transition font-semibold text-purple cursor-pointer border-none bg-transparent flex items-center gap-2"
+                    >
+                      <Package className="w-4 h-4 text-purple" />
+                      📦 Track My Orders
+                    </button>
+
+                    <button
+                      onClick={() => setMobileView("settings")}
+                      className="w-full text-left px-4 py-3 rounded-xl hover:bg-cream hover:text-coral transition font-semibold text-purple cursor-pointer border-none bg-transparent flex items-center gap-2"
+                    >
+                      <Settings className="w-4 h-4 text-purple" />
+                      ⚙️ Account Settings
+                    </button>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 rounded-xl hover:bg-red-50 hover:text-red-500 transition font-semibold text-red-400 cursor-pointer border-none bg-transparent flex items-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4 text-red-400" />
+                      🚪 Log Out
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Mobile Track Order view */}
+              {mobileView === "track" && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 border-b border-purple/5 pb-3">
+                    <button
+                      onClick={() => setMobileView("menu")}
+                      className="p-1.5 hover:bg-cream rounded-full transition text-purple cursor-pointer border-none bg-transparent"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <h4 className="font-display text-xl text-purple font-bold">Track Order</h4>
+                  </div>
+                  {renderTrackForm()}
+                </div>
+              )}
+
+              {/* Mobile Settings view */}
+              {mobileView === "settings" && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 border-b border-purple/5 pb-3">
+                    <button
+                      onClick={() => setMobileView("menu")}
+                      className="p-1.5 hover:bg-cream rounded-full transition text-purple cursor-pointer border-none bg-transparent"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <h4 className="font-display text-xl text-purple font-bold">Edit Profile</h4>
+                  </div>
+                  {renderSettingsForm()}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

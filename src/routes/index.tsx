@@ -46,7 +46,7 @@ const testimonials = [
 ];
 
 function Index() {
-  const { products, categories } = useProducts();
+  const { products, categories, heroImages = [] } = useProducts();
   const { cartCount, openCart, addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
@@ -83,7 +83,7 @@ function Index() {
       setActiveReviewIndex(index);
     }
   };
-  const heroImages = [hero, heroSlide1, heroSlide2, heroSlide3];
+  const bannerImages = heroImages.length > 0 ? heroImages : [hero, heroSlide1, heroSlide2, heroSlide3];
 
   const displayedProducts = products.filter((p) => {
     if (activeFeaturedTab === "best") {
@@ -94,11 +94,12 @@ function Index() {
   });
 
   useEffect(() => {
+    if (bannerImages.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+      setCurrentHeroIndex((prev) => (prev + 1) % bannerImages.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [bannerImages.length]);
 
   return (
     <div className="min-h-screen bg-background pb-16 lg:pb-0">
@@ -141,7 +142,7 @@ function Index() {
             <div className="absolute -top-6 -right-6 w-40 h-40 bg-yellow rounded-full -z-0" />
             <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-teal rounded-full -z-0" />
             <div className="relative rounded-[2rem] overflow-hidden border-8 border-white shadow-2xl rotate-[-2deg] aspect-square w-full">
-              {heroImages.map((img, index) => (
+              {bannerImages.map((img, index) => (
                 <img
                   key={index}
                   src={img}

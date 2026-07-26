@@ -1,6 +1,8 @@
 import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useCart } from "@/context/CartContext";
+import { useProducts } from "@/context/ProductContext";
+import { calculateShippingCost } from "@/lib/products";
 import { Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -14,8 +16,15 @@ export function CartDrawer() {
     updateQuantity,
     removeFromCart,
   } = useCart();
+  const { products } = useProducts();
 
-  const SHIPPING_COST = 100;
+  const totalWeightGrams = cartItems.reduce((sum, item) => {
+    const product = products.find((p) => p.id === item.id);
+    const weight = product?.weight ?? 500;
+    return sum + (weight * item.quantity);
+  }, 0);
+
+  const SHIPPING_COST = calculateShippingCost(totalWeightGrams);
   const finalShippingCost = SHIPPING_COST;
   const grandTotal = cartTotal + finalShippingCost;
 

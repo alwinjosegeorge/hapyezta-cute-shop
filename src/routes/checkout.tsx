@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCart } from "@/context/CartContext";
+import { useAccount } from "@/context/AccountContext";
+import { useProducts } from "@/context/ProductContext";
+import { calculateShippingCost } from "@/lib/products";
+import { createOrderFn } from "@/lib/api/db.functions";
 import { Logo } from "@/components/Logo";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft, ShoppingBag, CheckCircle, CreditCard, Landmark, Truck } from "lucide-react";
@@ -17,12 +21,13 @@ export const Route = createFileRoute("/checkout")({
 });
 
 const INDIAN_STATES = [
-  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
-  "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
-  "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
-  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
-  "West Bengal", "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
-  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+  "Kerala", "Tamil Nadu", "Karnataka",
+  "Andhra Pradesh", "Telangana", "Puducherry", "Lakshadweep",
+  "Andaman and Nicobar Islands", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana",
+  "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Ladakh", "Madhya Pradesh", "Maharashtra",
+  "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim",
+  "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
 ];
 
 const getStateFromPincode = (pin: string): string => {
@@ -58,6 +63,8 @@ const getStateFromPincode = (pin: string): string => {
 
 function Checkout() {
   const { cartItems, cartTotal, clearCart } = useCart();
+  const { products } = useProducts();
+  const { saveProfile, isLoggedIn, profileName, profileEmail, profilePhone } = useAccount();
   const navigate = useNavigate();
 
   // Form states
@@ -70,15 +77,66 @@ function Checkout() {
   const [pincode, setPincode] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("online"); // "online"
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [uploadedImageBase64, setUploadedImageBase64] = useState("");
+
+  const handleUploadedImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          const max_size = 400;
+          if (width > height) {
+            if (width > max_size) {
+              height *= max_size / width;
+              width = max_size;
+            }
+          } else {
+            if (height > max_size) {
+              width *= max_size / height;
+              height = max_size;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.7);
+          setUploadedImageBase64(compressed);
+        };
+        if (event.target?.result) {
+          img.src = event.target.result as string;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Submission states
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [deliveryDateRange, setDeliveryDateRange] = useState("");
 
-  const isKeralaPincode = /^(67|68|69)/.test(pincode);
-  const isKerala = selectedState === "Kerala" || isKeralaPincode;
-  const shippingCost = isKerala ? 60 : 100;
+  // Prefill details from active profile session
+  useEffect(() => {
+    if (isLoggedIn) {
+      if (profileName) setName(profileName);
+      if (profileEmail) setEmail(profileEmail);
+      if (profilePhone) setPhone(profilePhone);
+    }
+  }, [isLoggedIn, profileName, profileEmail, profilePhone]);
+
+  const totalWeightGrams = cartItems.reduce((sum, item) => {
+    const product = products.find((p) => p.id === item.id);
+    const weight = product?.weight ?? 500;
+    return sum + (weight * item.quantity);
+  }, 0);
+
+  const shippingCost = calculateShippingCost(totalWeightGrams);
   const finalShippingCost = shippingCost;
   const grandTotal = cartTotal + finalShippingCost;
 
@@ -104,7 +162,21 @@ function Checkout() {
     setDeliveryDateRange(`${minStr} – ${maxStr}, ${year}`);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (typeof window !== "undefined" && (window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate cart
@@ -160,18 +232,91 @@ function Checkout() {
       items: cartItems,
       shippingCost,
       totalAmount: grandTotal,
-      status: "pending"
+      status: "pending",
+      customerImage: uploadedImageBase64 || undefined
     };
 
-    // Save to localStorage
-    try {
-      const existingOrders = JSON.parse(localStorage.getItem("hapyezta-orders") || "[]");
-      localStorage.setItem("hapyezta-orders", JSON.stringify([orderData, ...existingOrders]));
-    } catch (error) {
-      console.error("Failed to save order to localStorage:", error);
+    // Load and Trigger Razorpay Checkout
+    const isLoaded = await loadRazorpayScript();
+    if (!isLoaded) {
+      alert("Failed to load Razorpay checkout SDK. Please check your network connection! 😿");
+      return;
     }
 
-    setIsSubmitted(true);
+    const options = {
+      key: "rzp_test_defaultKeyId", // Replace with your live/test Razorpay Key ID
+      amount: grandTotal * 100, // in paise
+      currency: "INR",
+      name: "Hapyezta",
+      description: `Order ${newOrderId} Payment 🌸`,
+      image: "https://i.ibb.co/hRt1Nq5/logo.png",
+      handler: function (response: any) {
+        const finalizedOrder = {
+          ...orderData,
+          razorpayPaymentId: response.razorpay_payment_id,
+          paymentStatus: "paid"
+        };
+
+        // Save/register profile automatically from checkout data
+        try {
+          saveProfile(name, "🌸", email, phone);
+        } catch (e) {
+          console.error("Failed to auto-create profile:", e);
+        }
+
+        // Save to localStorage
+        try {
+          const existingOrders = JSON.parse(localStorage.getItem("hapyezta-orders") || "[]");
+          localStorage.setItem("hapyezta-orders", JSON.stringify([finalizedOrder, ...existingOrders]));
+        } catch (error) {
+          console.error("Failed to save order to localStorage:", error);
+        }
+
+        // Save to database
+        try {
+          createOrderFn({
+            id: finalizedOrder.id,
+            customerName: finalizedOrder.customerName,
+            customerEmail: finalizedOrder.customerEmail,
+            customerPhone: finalizedOrder.customerPhone,
+            items: finalizedOrder.items,
+            cartTotal: finalizedOrder.totalAmount - finalizedOrder.shippingCost,
+            shippingAddress: finalizedOrder.shippingAddress,
+            shippingCost: finalizedOrder.shippingCost,
+            grandTotal: finalizedOrder.totalAmount,
+            paymentMethod: finalizedOrder.paymentMethod,
+            screenshot: finalizedOrder.customerImage || undefined,
+            status: finalizedOrder.status,
+            createdAt: finalizedOrder.date,
+            deliveryEstimate: finalizedOrder.deliveryEstimate || undefined
+          });
+        } catch (err) {
+          console.error("Failed to save order to database:", err);
+        }
+
+        // Clear cart
+        clearCart();
+
+        // Mark as submitted
+        setIsSubmitted(true);
+      },
+      prefill: {
+        name,
+        email,
+        contact: phone
+      },
+      theme: {
+        color: "#7F58A5" // Kawaii Purple
+      },
+      modal: {
+        ondismiss: function () {
+          alert("Payment cancelled! Please complete payment to place your order. 🌸");
+        }
+      }
+    };
+
+    const rzp = new (window as any).Razorpay(options);
+    rzp.open();
   };
 
   // Scroll to top on submit/success
@@ -421,10 +566,44 @@ function Checkout() {
                     </div>
                   </div>
 
-                  {/* Step 3: Payment */}
+                  {/* Step 3: Reference Image (Optional) */}
+                  <div className="space-y-4 pt-4 border-t border-purple/5">
+                    <h3 className="text-xs font-bold text-orange uppercase tracking-wider flex items-center gap-1.5">
+                      <span>3. Reference Image / Note (Optional)</span>
+                    </h3>
+                    <p className="text-[11px] text-foreground/60 leading-relaxed pl-1 font-body">
+                      Upload a payment screenshot, customization reference, or gift note! 🌸
+                    </p>
+                    <div className="border-2 border-dashed border-purple/10 rounded-2xl p-4 text-center bg-cream/5 hover:bg-cream/15 transition relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUploadedImageChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      {uploadedImageBase64 ? (
+                        <div className="space-y-2">
+                          <img
+                            src={uploadedImageBase64}
+                            alt="Reference preview"
+                            className="w-16 h-16 object-cover mx-auto rounded-xl border border-purple/10"
+                          />
+                          <p className="text-[10px] text-teal font-semibold font-display">✓ Image uploaded successfully</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1 text-purple/50">
+                          <ImageIcon className="w-5 h-5 mx-auto" />
+                          <p className="text-[10px] font-semibold font-display">Click to upload image</p>
+                          <p className="text-[8px] text-foreground/40 font-body">PNG, JPG, JPEG (compressed locally)</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Step 4: Payment */}
                   <div className="space-y-4 pt-4 border-t border-purple/5">
                     <h3 className="text-xs font-bold text-orange uppercase tracking-wider">
-                      3. Payment Method
+                      4. Payment Method
                     </h3>
                     <div className="p-4 rounded-2xl border-2 border-coral bg-coral/5 flex items-center justify-between">
                       <div className="flex items-center gap-3">

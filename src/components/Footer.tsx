@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Mail, Phone, MapPin, Calendar, Trash2 } from "lucide-react";
+import { getOrdersFn } from "@/lib/api/db.functions";
 
 interface AccordionItemProps {
   title: string;
@@ -82,7 +83,7 @@ function SocialIcons({ hoverBgClass }: { hoverBgClass: string }) {
 
       {/* WhatsApp Logo */}
       <a
-        href="https://wa.me/918921502990"
+        href="https://wa.me/918921502990?text=Hello!%20I%20need%20help."
         target="_blank"
         rel="noopener noreferrer"
         className={`group relative flex items-center justify-center p-1 rounded-xl transition-all duration-300 ${hoverBgClass}`}
@@ -114,7 +115,7 @@ export function Footer() {
     alert("Thank you for staying linked! 🌸");
   };
 
-  const handleTrackSubmit = (e: React.FormEvent) => {
+  const handleTrackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTrackError("");
     setTrackingResult(null);
@@ -125,23 +126,33 @@ export function Footer() {
     }
 
     try {
-      const stored = localStorage.getItem("hapyezta-orders");
-      if (stored) {
-        const orders = JSON.parse(stored);
-        const matched = orders.find(
-          (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
-        );
-        if (matched) {
-          setTrackingResult(matched);
-        } else {
-          setTrackError("No order found with this ID. 😿 Please check spelling!");
-        }
+      const dbOrders = await getOrdersFn();
+      const matched = dbOrders.find(
+        (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
+      );
+      if (matched) {
+        setTrackingResult(matched);
       } else {
-        setTrackError("No orders placed on this device yet! 🌸");
+        setTrackError("No order found with this ID. 😿 Please check spelling!");
       }
     } catch (err) {
       console.error(err);
-      setTrackError("Something went wrong. Please try again!");
+      try {
+        const stored = localStorage.getItem("hapyezta-orders");
+        if (stored) {
+          const orders = JSON.parse(stored);
+          const matched = orders.find(
+            (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
+          );
+          if (matched) {
+            setTrackingResult(matched);
+            return;
+          }
+        }
+        setTrackError("Something went wrong. Please try again!");
+      } catch (localErr) {
+        setTrackError("Something went wrong. Please try again!");
+      }
     }
   };
 
