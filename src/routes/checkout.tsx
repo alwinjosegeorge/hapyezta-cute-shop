@@ -8,7 +8,7 @@ import { createOrderFn } from "@/lib/api/db.functions";
 import { resolveImage } from "@/lib/image-resolver";
 import { Logo } from "@/components/Logo";
 import { Footer } from "@/components/Footer";
-import { ArrowLeft, ShoppingBag, CheckCircle, CreditCard, Landmark, Truck } from "lucide-react";
+import { ArrowLeft, ShoppingBag, CheckCircle, CreditCard, Landmark, Truck, Image as ImageIcon } from "lucide-react";
 
 
 export const Route = createFileRoute("/checkout")({
