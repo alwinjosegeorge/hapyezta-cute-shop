@@ -152,7 +152,7 @@ function ControlPanel() {
           setCustomerProfiles(JSON.parse(stored));
         } else {
           const mockProfiles = [
-            { name: "Ananya Sharma", emoji: "🌸", email: "ananya@kawaii.com", phone: "9876543210" }
+            { name: "Alwin Jose George", emoji: "🌸", email: "alwinjosegeorge2028@cs.sjcetpalai.ac.in", phone: "8921502990" }
           ];
           setCustomerProfiles(mockProfiles);
           localStorage.setItem("hapyezta-profiles", JSON.stringify(mockProfiles));
