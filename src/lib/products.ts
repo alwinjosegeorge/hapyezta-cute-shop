@@ -156,6 +156,70 @@ export const products: Product[] = [
       "Ideal gift for stationery lovers"
     ],
     weight: 1100
+  },
+  {
+    id: "kawaii-bear-bottle",
+    name: "Kawaii Straw Bear Bottle",
+    price: "₹499",
+    img: base64Assets.p9,
+    category: "Bottles & Tumblers",
+    description: "Stay hydrated with this cute bear-shaped straw water bottle! Features a leak-proof lock and a durable carry strap.",
+    stockStatus: "in_stock",
+    colors: ["Pink", "Brown"],
+    details: [
+      "Capacity: 500ml",
+      "Material: BPA-free Tritan plastic",
+      "Includes adjustable carrying strap"
+    ],
+    weight: 350
+  },
+  {
+    id: "plush-bear-backpack",
+    name: "Cute Plush Bear Backpack",
+    price: "₹899",
+    img: base64Assets.p10,
+    category: "Sling & School Bags",
+    description: "The ultimate school backpack shaped like a cuddly teddy bear! Made of ultra-soft plush fabric with durable, adjustable straps.",
+    stockStatus: "in_stock",
+    colors: ["Classic Brown"],
+    details: [
+      "Material: Soft premium plush",
+      "Capacity: Fits tablet and notebooks",
+      "Secure front zip pocket"
+    ],
+    weight: 650
+  },
+  {
+    id: "kawaii-bento-box",
+    name: "Kawaii Bento Lunch Box",
+    price: "₹449",
+    img: base64Assets.p11,
+    category: "Lunch Box",
+    description: "A cute double-layer bento lunch box with customizable animal stickers. Keeps your lunch separated and warm.",
+    stockStatus: "in_stock",
+    colors: ["Pastel Mint"],
+    details: [
+      "Dishwasher and microwave safe",
+      "Includes reusable fork and spoon",
+      "Leaking-proof silicone seal"
+    ],
+    weight: 400
+  },
+  {
+    id: "stationery-gift-box",
+    name: "Kawaii Stationery Gift Box Set",
+    price: "₹1299",
+    img: base64Assets.p12,
+    category: "Gift Sets",
+    description: "Gift the joy of cute organization! Contains pastel notebooks, stickers, tapes, and pens beautifully packed in a gift box.",
+    stockStatus: "in_stock",
+    colors: ["Sakura Pink"],
+    details: [
+      "Box dimensions: 25cm x 20cm x 5cm",
+      "Features: 1 notebook, 4 tapes, 5 pens, 40 stickers",
+      "Perfect birthday or holiday gift"
+    ],
+    weight: 1100
   }
 ];
 

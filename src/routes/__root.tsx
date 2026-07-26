@@ -17,7 +17,7 @@ import { Preloader } from "../components/Preloader";
 import { MobileNav } from "../components/MobileNav";
 import { CartProvider } from "../context/CartContext";
 import { CartDrawer } from "../components/CartDrawer";
-import { ProductProvider } from "../context/ProductContext";
+import { ProductProvider } from "@/context/ProductContext";
 import { FavoritesProvider } from "../context/FavoritesContext";
 import { FavoritesDrawer } from "../components/FavoritesDrawer";
 import { AccountProvider } from "../context/AccountContext";
