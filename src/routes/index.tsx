@@ -47,7 +47,7 @@ const testimonials = [
 ];
 
 function Index() {
-  const { products, categories, heroImages = [] } = useProducts();
+  const { products, categories, heroImages = [], dbError } = useProducts();
   const { cartCount, openCart, addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
@@ -121,6 +121,15 @@ function Index() {
     <div className="min-h-screen bg-background pb-16 lg:pb-0">
       <MarqueeBanner />
       <Header />
+
+      {dbError && (
+        <div className="max-w-7xl mx-auto px-4 mt-6">
+          <div className="bg-coral/10 border-2 border-coral/20 text-coral px-6 py-4 rounded-3xl text-sm font-body shadow-sm flex flex-col gap-1">
+            <span className="font-bold font-display text-base">⚠️ Database Connection/Loading Error:</span>
+            <code className="bg-white/50 p-2 rounded-xl text-xs block overflow-x-auto">{dbError}</code>
+          </div>
+        </div>
+      )}
 
       {/* Hero */}
       <section className="relative overflow-hidden">

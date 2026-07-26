@@ -46,6 +46,7 @@ interface ProductContextType {
   updateCategory: (oldName: string, updatedCategory: Category) => void;
   heroImages: string[];
   updateHeroImages: (images: string[]) => void;
+  dbError: string | null;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -54,6 +55,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [heroImages, setHeroImages] = useState<string[]>([]);
+  const [dbError, setDbError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load from Neon PostgreSQL database on mount
@@ -64,11 +66,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setProducts(data.products);
         setCategories(data.categories);
         setHeroImages(data.heroImages);
+        setDbError(null);
       } catch (error) {
         console.error("Failed to load store data from database, falling back to mock data:", error);
-        setProducts(initialProducts);
-        setCategories(initialCategories);
-        setHeroImages(initialHeroImages);
+        setDbError(error instanceof Error ? error.message : String(error));
+        setProducts([]);
+        setCategories([]);
+        setHeroImages([]);
       }
       setIsInitialized(true);
     }
@@ -202,6 +206,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updateCategory,
         heroImages,
         updateHeroImages,
+        dbError,
       }}
     >
       {children}
@@ -224,6 +229,7 @@ export const useProducts = () => {
         deleteCategory: () => {},
         updateCategory: () => {},
         updateHeroImages: () => {},
+        dbError: null,
       };
     }
     throw new Error("useProducts must be used within a ProductProvider");
