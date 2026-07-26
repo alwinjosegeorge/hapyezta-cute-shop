@@ -12,6 +12,7 @@ import heroSlide1 from "@/assets/hero_slide_1.png";
 import heroSlide2 from "@/assets/hero_slide_2.png";
 import heroSlide3 from "@/assets/hero_slide_3.png";
 import { useProducts } from "@/context/ProductContext";
+import { resolveImage } from "@/lib/image-resolver";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -84,7 +85,7 @@ function Index() {
       setActiveReviewIndex(index);
     }
   };
-  const bannerImages = heroImages.length > 0 ? heroImages : [hero, heroSlide1, heroSlide2, heroSlide3];
+  const bannerImages = (heroImages.length > 0 ? heroImages : ["hero", "hero_slide_1", "hero_slide_2", "hero_slide_3"]).map(resolveImage);
 
   const displayedProducts = products.filter((p) => {
     if (activeFeaturedTab === "best") {
@@ -210,7 +211,7 @@ function Index() {
               <a key={c.name} href="#" className="group">
                 <div className="aspect-square rounded-3xl overflow-hidden shadow-md group-hover:scale-105 group-hover:-rotate-2 transition-transform p-3" style={{ backgroundColor: c.color }}>
                   <div className="w-full h-full rounded-2xl overflow-hidden bg-white">
-                    <img src={c.img} alt={c.name} loading="lazy" width={600} height={600} className="w-full h-full object-cover" />
+                    <img src={resolveImage(c.img)} alt={c.name} loading="lazy" width={600} height={600} className="w-full h-full object-cover" />
                   </div>
                 </div>
                 <div className="mt-3 text-center font-semibold text-sm sm:text-base text-foreground group-hover:text-coral transition">
@@ -273,7 +274,7 @@ function Index() {
                     <Heart className={`w-4 h-4 ${isFavorite(p.name) ? "fill-coral text-coral" : ""}`} />
                   </button>
                   <Link to="/product/$productId" params={{ productId: p.id }} className="block w-full h-full">
-                    <img src={p.img} alt={p.name} loading="lazy" width={800} height={800} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                    <img src={resolveImage(p.img)} alt={p.name} loading="lazy" width={800} height={800} className="w-full h-full object-cover group-hover:scale-105 transition" />
                   </Link>
                 </div>
                 <div className="p-4 flex-1 flex flex-col justify-between">

@@ -5,6 +5,7 @@ import { useProducts } from "@/context/ProductContext";
 import { calculateShippingCost } from "@/lib/products";
 import { Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { resolveImage } from "@/lib/image-resolver";
 
 export function CartDrawer() {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ export function CartDrawer() {
                   >
                     {/* Item Image */}
                     <div className="w-16 h-16 rounded-xl border border-purple/10 overflow-hidden shrink-0 bg-cream/10">
-                      <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                      <img src={resolveImage(item.img)} alt={item.name} className="w-full h-full object-cover" />
                     </div>
 
                     {/* Item Details */}

@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { useProducts } from "@/context/ProductContext";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { resolveImage } from "@/lib/image-resolver";
 
 type ProductSearch = {
   category?: string;
@@ -228,7 +229,7 @@ function ProductsList() {
                       <Heart className={`w-4 h-4 ${isFavorite(p.name) ? "fill-coral text-coral" : ""}`} />
                     </button>
                     <Link to="/product/$productId" params={{ productId: p.id }} className="block w-full h-full">
-                      <img src={p.img} alt={p.name} loading="lazy" width={800} height={800} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                      <img src={resolveImage(p.img)} alt={p.name} loading="lazy" width={800} height={800} className="w-full h-full object-cover group-hover:scale-105 transition" />
                     </Link>
                   </div>
                   <div className="p-4 flex-1 flex flex-col justify-between">

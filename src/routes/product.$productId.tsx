@@ -18,6 +18,7 @@ import { MarqueeBanner } from "@/components/MarqueeBanner";
 import { Footer } from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { resolveImage } from "@/lib/image-resolver";
 
 export const Route = createFileRoute("/product/$productId")({
   component: ProductDetails,
@@ -140,8 +141,8 @@ function ProductDetails() {
               >
                 <Heart className={`w-5 h-5 ${isFavorite(product.name) ? "fill-white" : ""}`} />
               </button>
-              <img
-                src={product.img}
+               <img
+                src={resolveImage(product.img)}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />

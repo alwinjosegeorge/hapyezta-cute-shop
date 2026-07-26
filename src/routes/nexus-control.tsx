@@ -5,6 +5,7 @@ import { useProducts } from "@/context/ProductContext";
 import { getOrdersFn, updateOrderStatusFn } from "@/lib/api/db.functions";
 import { Logo } from "@/components/Logo";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { resolveImage } from "@/lib/image-resolver";
 
 export const Route = createFileRoute("/nexus-control")({
   head: () => ({
@@ -1039,7 +1040,7 @@ function ControlPanel() {
                               <td className="py-4 flex items-center gap-3">
                                 <div className="relative rounded-2xl overflow-hidden border-2 border-purple/5 bg-cream/15 group-hover:scale-105 group-hover:border-yellow/20 transition-all duration-300 shadow-sm shrink-0">
                                   <img 
-                                    src={prod.img} 
+                                    src={resolveImage(prod.img)} 
                                     alt={prod.name} 
                                     className="w-11 h-11 object-cover" 
                                   />
@@ -1083,7 +1084,7 @@ function ControlPanel() {
                             </span>
                             {/* Product Image */}
                             <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-purple/5 bg-white shadow-sm shrink-0">
-                              <img src={prod.img} alt={prod.name} className="w-full h-full object-cover" />
+                              <img src={resolveImage(prod.img)} alt={prod.name} className="w-full h-full object-cover" />
                             </div>
                             {/* Product Info */}
                             <div className="space-y-0.5">
@@ -1254,7 +1255,7 @@ function ControlPanel() {
                         {heroImages.map((imgSrc, idx) => (
                           <div key={idx} className="flex items-center gap-3 p-2 rounded-xl bg-cream/20 border border-purple/5">
                             <img
-                              src={imgSrc}
+                              src={resolveImage(imgSrc)}
                               alt={`Hero banner ${idx + 1}`}
                               className="w-12 h-12 object-cover rounded-lg border border-purple/10"
                             />
@@ -1307,7 +1308,7 @@ function ControlPanel() {
                         <div className="space-y-3">
                           <div className="aspect-video w-full rounded-2xl overflow-hidden border border-purple/5 bg-cream/15 relative">
                             <img
-                              src={cat.img}
+                              src={resolveImage(cat.img)}
                               alt={cat.name}
                               className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                             />
@@ -1477,7 +1478,7 @@ function ControlPanel() {
                             ).map((p) => (
                               <tr key={p.id} className="hover:bg-cream/10 transition-colors">
                                 <td className="p-4">
-                                  <img src={p.img} alt={p.name} className="w-12 h-12 object-cover rounded-xl border border-purple/10 bg-cream/15" />
+                                  <img src={resolveImage(p.img)} alt={p.name} className="w-12 h-12 object-cover rounded-xl border border-purple/10 bg-cream/15" />
                                 </td>
                                 <td className="p-4 font-semibold text-purple">
                                   {p.name}
@@ -1530,7 +1531,7 @@ function ControlPanel() {
                         ).map((p) => (
                           <div key={p.id} className="bg-white rounded-[2rem] p-4 border-2 border-purple/5 shadow-sm space-y-4">
                             <div className="flex gap-4">
-                              <img src={p.img} alt={p.name} className="w-16 h-16 object-cover rounded-2xl border border-purple/10 shrink-0 bg-cream/15" />
+                              <img src={resolveImage(p.img)} alt={p.name} className="w-16 h-16 object-cover rounded-2xl border border-purple/10 shrink-0 bg-cream/15" />
                               <div className="space-y-1 min-w-0 flex-1">
                                 <div className="flex items-center justify-between">
                                   <span className="text-[10px] uppercase font-bold text-foreground/40 block">{p.category}</span>
@@ -2034,7 +2035,7 @@ function ControlPanel() {
                                   <div key={idx} className="flex items-center justify-between gap-4 pt-3 first:pt-0">
                                     <div className="flex items-center gap-3">
                                       <img
-                                        src={item.img}
+                                        src={resolveImage(item.img)}
                                         alt={item.name}
                                         className="w-12 h-12 object-cover rounded-xl border border-purple/10 bg-cream/10 shrink-0"
                                       />

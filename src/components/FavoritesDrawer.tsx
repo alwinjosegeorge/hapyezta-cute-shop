@@ -4,6 +4,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import { useCart } from "@/context/CartContext";
 import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { resolveImage } from "@/lib/image-resolver";
 
 export function FavoritesDrawer() {
   const navigate = useNavigate();
@@ -82,7 +83,7 @@ export function FavoritesDrawer() {
                       onClick={() => handleProductClick(item.name)}
                       className="w-16 h-16 rounded-xl border border-purple/10 overflow-hidden shrink-0 bg-cream/10 cursor-pointer hover:opacity-95 transition"
                     >
-                      <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                      <img src={resolveImage(item.img)} alt={item.name} className="w-full h-full object-cover" />
                     </div>
 
                     {/* Item Details */}
