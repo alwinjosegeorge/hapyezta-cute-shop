@@ -237,87 +237,56 @@ function Checkout() {
       customerImage: uploadedImageBase64 || undefined
     };
 
-    // Load and Trigger Razorpay Checkout
-    const isLoaded = await loadRazorpayScript();
-    if (!isLoaded) {
-      alert("Failed to load Razorpay checkout SDK. Please check your network connection! 😿");
+    const finalizedOrder = {
+      ...orderData,
+      razorpayPaymentId: "manual_pending",
+      paymentStatus: "pending"
+    };
+
+    // Save/register profile automatically from checkout data
+    try {
+      saveProfile(name, "🌸", email, phone);
+    } catch (e) {
+      console.error("Failed to auto-create profile:", e);
+    }
+
+    // Save to localStorage
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem("hapyezta-orders") || "[]");
+      localStorage.setItem("hapyezta-orders", JSON.stringify([finalizedOrder, ...existingOrders]));
+    } catch (error) {
+      console.error("Failed to save order to localStorage:", error);
+    }
+
+    // Save to database
+    try {
+      await createOrderFn({
+        id: finalizedOrder.id,
+        customerName: finalizedOrder.customerName,
+        customerEmail: finalizedOrder.customerEmail,
+        customerPhone: finalizedOrder.customerPhone,
+        items: finalizedOrder.items,
+        cartTotal: finalizedOrder.totalAmount - finalizedOrder.shippingCost,
+        shippingAddress: finalizedOrder.shippingAddress,
+        shippingCost: finalizedOrder.shippingCost,
+        grandTotal: finalizedOrder.totalAmount,
+        paymentMethod: finalizedOrder.paymentMethod,
+        screenshot: finalizedOrder.customerImage || undefined,
+        status: finalizedOrder.status,
+        createdAt: finalizedOrder.date,
+        deliveryEstimate: finalizedOrder.deliveryEstimate || undefined
+      });
+    } catch (err) {
+      console.error("Failed to save order to database:", err);
+      alert("Something went wrong saving the order. Please try again! 🌸");
       return;
     }
 
-    const options = {
-      key: "rzp_test_defaultKeyId", // Replace with your live/test Razorpay Key ID
-      amount: grandTotal * 100, // in paise
-      currency: "INR",
-      name: "Hapyezta",
-      description: `Order ${newOrderId} Payment 🌸`,
-      image: "https://i.ibb.co/hRt1Nq5/logo.png",
-      handler: function (response: any) {
-        const finalizedOrder = {
-          ...orderData,
-          razorpayPaymentId: response.razorpay_payment_id,
-          paymentStatus: "paid"
-        };
+    // Clear cart
+    clearCart();
 
-        // Save/register profile automatically from checkout data
-        try {
-          saveProfile(name, "🌸", email, phone);
-        } catch (e) {
-          console.error("Failed to auto-create profile:", e);
-        }
-
-        // Save to localStorage
-        try {
-          const existingOrders = JSON.parse(localStorage.getItem("hapyezta-orders") || "[]");
-          localStorage.setItem("hapyezta-orders", JSON.stringify([finalizedOrder, ...existingOrders]));
-        } catch (error) {
-          console.error("Failed to save order to localStorage:", error);
-        }
-
-        // Save to database
-        try {
-          createOrderFn({
-            id: finalizedOrder.id,
-            customerName: finalizedOrder.customerName,
-            customerEmail: finalizedOrder.customerEmail,
-            customerPhone: finalizedOrder.customerPhone,
-            items: finalizedOrder.items,
-            cartTotal: finalizedOrder.totalAmount - finalizedOrder.shippingCost,
-            shippingAddress: finalizedOrder.shippingAddress,
-            shippingCost: finalizedOrder.shippingCost,
-            grandTotal: finalizedOrder.totalAmount,
-            paymentMethod: finalizedOrder.paymentMethod,
-            screenshot: finalizedOrder.customerImage || undefined,
-            status: finalizedOrder.status,
-            createdAt: finalizedOrder.date,
-            deliveryEstimate: finalizedOrder.deliveryEstimate || undefined
-          });
-        } catch (err) {
-          console.error("Failed to save order to database:", err);
-        }
-
-        // Clear cart
-        clearCart();
-
-        // Mark as submitted
-        setIsSubmitted(true);
-      },
-      prefill: {
-        name,
-        email,
-        contact: phone
-      },
-      theme: {
-        color: "#7F58A5" // Kawaii Purple
-      },
-      modal: {
-        ondismiss: function () {
-          alert("Payment cancelled! Please complete payment to place your order. 🌸");
-        }
-      }
-    };
-
-    const rzp = new (window as any).Razorpay(options);
-    rzp.open();
+    // Mark as submitted
+    setIsSubmitted(true);
   };
 
   // Scroll to top on submit/success
