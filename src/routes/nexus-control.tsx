@@ -1939,7 +1939,11 @@ function ControlPanel() {
                                     {order.customerPhone && (
                                       <a
                                         href={`https://wa.me/91${order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
-                                          `Hi ${order.customerName}! 🌸 Thank you for shopping with Hapyezta. Your order ${order.id} status is: ${order.status.toUpperCase()}. We are packing it with love! 💕✨`
+                                          `Hi ${order.customerName}! 🌸 Thank you for shopping with Hapyezta. Your order ${order.id} status is: ${order.status.toUpperCase()}.\n\nYou can track your package here: ${
+                                            typeof window !== "undefined"
+                                              ? `${window.location.origin}/?track=${order.id}`
+                                              : `https://hapyezta-cute-shop.vercel.app/?track=${order.id}`
+                                          }\n\nWe are packing it with love! 💕✨`
                                         )}`}
                                         target="_blank"
                                         rel="noopener noreferrer"

@@ -76,22 +76,32 @@ const mapDbProduct = (p: any): Product => ({
   weight: p.weight,
 });
 
-const mapDbOrder = (o: any) => ({
-  id: o.id,
-  customerName: o.customer_name,
-  customerEmail: o.customer_email,
-  customerPhone: o.customer_phone,
-  items: typeof o.items === "string" ? JSON.parse(o.items) : o.items,
-  cartTotal: o.cart_total,
-  shippingAddress: typeof o.shipping_address === "string" ? JSON.parse(o.shipping_address) : o.shipping_address,
-  shippingCost: parseFloat(o.shipping_cost),
-  grandTotal: parseFloat(o.grand_total),
-  paymentMethod: o.payment_method,
-  screenshot: o.screenshot || undefined,
-  status: o.status,
-  createdAt: o.created_at,
-  deliveryEstimate: o.delivery_estimate || undefined,
-});
+const mapDbOrder = (o: any) => {
+  const items = typeof o.items === "string" ? JSON.parse(o.items) : o.items;
+  const shippingAddress = typeof o.shipping_address === "string" ? JSON.parse(o.shipping_address) : o.shipping_address;
+  const shippingCost = parseFloat(o.shipping_cost);
+  const grandTotal = parseFloat(o.grand_total);
+
+  return {
+    id: o.id,
+    customerName: o.customer_name,
+    customerEmail: o.customer_email,
+    customerPhone: o.customer_phone,
+    items,
+    cartTotal: o.cart_total,
+    shippingAddress,
+    shippingCost,
+    grandTotal,
+    totalAmount: grandTotal,
+    paymentMethod: o.payment_method,
+    screenshot: o.screenshot || undefined,
+    customerImage: o.screenshot || undefined,
+    status: o.status,
+    createdAt: o.created_at,
+    date: o.created_at,
+    deliveryEstimate: o.delivery_estimate || undefined,
+  };
+};
 
 // 1. Fetch store data (runs DB migrations first)
 export const getStoreData = createServerFn({ method: "POST" })

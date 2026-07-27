@@ -13,6 +13,7 @@ import { getUserOrdersFn, getOrdersFn } from "@/lib/api/db.functions";
 export function AccountDialogs() {
   const {
     isAccountOpen,
+    openAccount,
     closeAccount,
     isLoggedIn,
     profileName,
@@ -158,12 +159,11 @@ export function AccountDialogs() {
     }
   };
 
-  const handleTrackOrderSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const performTracking = async (orderIdToTrack: string) => {
     setTrackError("");
     setTrackingResult(null);
 
-    if (!trackOrderId.trim()) {
+    if (!orderIdToTrack.trim()) {
       setTrackError("Please enter a valid Order ID! 🌸");
       return;
     }
@@ -171,7 +171,7 @@ export function AccountDialogs() {
     try {
       const dbOrders = await getOrdersFn();
       const matched = dbOrders.find(
-        (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
+        (o: any) => o.id.trim().toLowerCase() === orderIdToTrack.trim().toLowerCase()
       );
       if (matched) {
         setTrackingResult(matched);
@@ -185,7 +185,7 @@ export function AccountDialogs() {
         if (stored) {
           const orders = JSON.parse(stored);
           const matched = orders.find(
-            (o: any) => o.id.trim().toLowerCase() === trackOrderId.trim().toLowerCase()
+            (o: any) => o.id.trim().toLowerCase() === orderIdToTrack.trim().toLowerCase()
           );
           if (matched) {
             setTrackingResult(matched);
@@ -198,6 +198,30 @@ export function AccountDialogs() {
       }
     }
   };
+
+  const handleTrackOrderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performTracking(trackOrderId);
+  };
+
+  // URL ?track=ORDER_ID parameter check to auto-open tracking
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const trackId = params.get("track");
+      if (trackId) {
+        openAccount();
+        setActiveTab("track");
+        setMobileView("track");
+        setTrackOrderId(trackId);
+        performTracking(trackId);
+
+        // Clean up URL parameter
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
     logout();
