@@ -57,7 +57,7 @@ export function AccountDialogs() {
     async function loadUserOrders() {
       if (isLoggedIn && profilePhone) {
         try {
-          const dbOrders = await getUserOrdersFn({ phone: profilePhone });
+          const dbOrders = await getUserOrdersFn({ data: { phone: profilePhone } });
           setUserOrders(dbOrders);
           setOrdersCount(dbOrders.length);
           const total = dbOrders.reduce((sum: number, o: any) => sum + (o.grandTotal || 0), 0);

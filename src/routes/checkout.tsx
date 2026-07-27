@@ -261,20 +261,22 @@ function Checkout() {
     // Save to database
     try {
       await createOrderFn({
-        id: finalizedOrder.id,
-        customerName: finalizedOrder.customerName,
-        customerEmail: finalizedOrder.customerEmail,
-        customerPhone: finalizedOrder.customerPhone,
-        items: finalizedOrder.items,
-        cartTotal: finalizedOrder.totalAmount - finalizedOrder.shippingCost,
-        shippingAddress: finalizedOrder.shippingAddress,
-        shippingCost: finalizedOrder.shippingCost,
-        grandTotal: finalizedOrder.totalAmount,
-        paymentMethod: finalizedOrder.paymentMethod,
-        screenshot: finalizedOrder.customerImage || undefined,
-        status: finalizedOrder.status,
-        createdAt: finalizedOrder.date,
-        deliveryEstimate: finalizedOrder.deliveryEstimate || undefined
+        data: {
+          id: finalizedOrder.id,
+          customerName: finalizedOrder.customerName,
+          customerEmail: finalizedOrder.customerEmail,
+          customerPhone: finalizedOrder.customerPhone,
+          items: finalizedOrder.items,
+          cartTotal: finalizedOrder.totalAmount - finalizedOrder.shippingCost,
+          shippingAddress: finalizedOrder.shippingAddress,
+          shippingCost: finalizedOrder.shippingCost,
+          grandTotal: finalizedOrder.totalAmount,
+          paymentMethod: finalizedOrder.paymentMethod,
+          screenshot: finalizedOrder.customerImage || undefined,
+          status: finalizedOrder.status,
+          createdAt: finalizedOrder.date,
+          deliveryEstimate: finalizedOrder.deliveryEstimate || undefined
+        }
       });
     } catch (err) {
       console.error("Failed to save order to database:", err);

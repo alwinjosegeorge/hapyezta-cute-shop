@@ -519,7 +519,7 @@ function ControlPanel() {
     setOrders(updated);
     try {
       localStorage.setItem("hapyezta-orders", JSON.stringify(updated));
-      await updateOrderStatusFn({ id: orderId, status: newStatus });
+      await updateOrderStatusFn({ data: { id: orderId, status: newStatus } });
       showNotification("success", `Order ${orderId} status updated to ${newStatus}! 🌸`);
     } catch (e) {
       console.error("Failed to update status in database:", e);

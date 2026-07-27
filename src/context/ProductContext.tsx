@@ -88,11 +88,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     
     try {
       await addProductFn({
-        ...newProduct,
-        id,
-        stockStatus: newProduct.stockStatus,
-        colors: newProduct.colors,
-        details: newProduct.details,
+        data: {
+          ...newProduct,
+          id,
+          stockStatus: newProduct.stockStatus,
+          colors: newProduct.colors,
+          details: newProduct.details,
+        }
       });
     } catch (err) {
       console.error("Failed to save product to database:", err);
@@ -107,8 +109,10 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     try {
       await updateProductFn({
-        ...updatedProduct,
-        stockStatus: updatedProduct.stockStatus,
+        data: {
+          ...updatedProduct,
+          stockStatus: updatedProduct.stockStatus,
+        }
       });
     } catch (err) {
       console.error("Failed to update product in database:", err);
@@ -125,7 +129,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
 
     try {
-      await addCategoryFn(newCategory);
+      await addCategoryFn({ data: newCategory });
     } catch (err) {
       console.error("Failed to add category to database:", err);
     }
@@ -136,7 +140,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setProducts((prev) => prev.filter((p) => p.id !== id));
 
     try {
-      await deleteProductFn({ id });
+      await deleteProductFn({ data: { id } });
     } catch (err) {
       console.error("Failed to delete product from database:", err);
     }
@@ -156,7 +160,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
 
     try {
-      await deleteCategoryFn({ name });
+      await deleteCategoryFn({ data: { name } });
     } catch (err) {
       console.error("Failed to delete category from database:", err);
     }
@@ -176,7 +180,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
 
     try {
-      await updateCategoryFn({ oldName, updatedCategory });
+      await updateCategoryFn({ data: { oldName, updatedCategory } });
     } catch (err) {
       console.error("Failed to update category in database:", err);
     }
@@ -187,7 +191,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setHeroImages(newImages);
 
     try {
-      await updateHeroImagesFn(newImages);
+      await updateHeroImagesFn({ data: newImages });
     } catch (err) {
       console.error("Failed to update hero images in database:", err);
     }
