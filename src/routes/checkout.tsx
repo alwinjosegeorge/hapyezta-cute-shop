@@ -278,7 +278,8 @@ function Checkout() {
       });
     } catch (err) {
       console.error("Failed to save order to database:", err);
-      alert("Something went wrong saving the order. Please try again! 🌸");
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Something went wrong saving the order: ${errMsg}\n\nPlease try again! 🌸`);
       return;
     }
 

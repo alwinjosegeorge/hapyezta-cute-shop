@@ -242,6 +242,7 @@ export const getOrdersFn = createServerFn({ method: "POST" })
 export const createOrderFn = createServerFn({ method: "POST" })
   .inputValidator(OrderSchema)
   .handler(async ({ input }) => {
+    await initializeDatabase();
     const sql = getSql();
 
     await sql`
