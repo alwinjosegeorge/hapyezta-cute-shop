@@ -151,7 +151,7 @@ function Index() {
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href="#collection" className="px-7 py-3.5 rounded-full bg-coral text-white font-bold shadow-[0_6px_0_0_#c4513f] hover:translate-y-0.5 hover:shadow-[0_2px_0_0_#c4513f] transition-all">
-                Shop the drop
+                Explore Collection
               </a>
               <a href="#featured" className="px-7 py-3.5 rounded-full bg-white border-2 border-purple text-purple font-bold hover:bg-purple hover:text-white transition">
                 New arrivals
