@@ -98,6 +98,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       });
     } catch (err) {
       console.error("Failed to save product to database:", err);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to save product to database: ${errMsg}\n\nPlease try again! 🌸`);
     }
   };
 
@@ -116,6 +119,12 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       });
     } catch (err) {
       console.error("Failed to update product in database:", err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to update product in database: ${errMsg}\n\nPlease try again! 🌸`);
+      try {
+        const data = await getStoreData();
+        setProducts(data.products);
+      } catch (_) {}
     }
   };
 
@@ -132,6 +141,9 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await addCategoryFn({ data: newCategory });
     } catch (err) {
       console.error("Failed to add category to database:", err);
+      setCategories((prev) => prev.filter((c) => c.name !== newCategory.name));
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to add category to database: ${errMsg}\n\nPlease try again! 🌸`);
     }
   };
 
@@ -143,6 +155,12 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await deleteProductFn({ data: { id } });
     } catch (err) {
       console.error("Failed to delete product from database:", err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to delete product: ${errMsg}\n\nPlease try again! 🌸`);
+      try {
+        const data = await getStoreData();
+        setProducts(data.products);
+      } catch (_) {}
     }
   };
 
@@ -163,6 +181,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await deleteCategoryFn({ data: { name } });
     } catch (err) {
       console.error("Failed to delete category from database:", err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to delete category: ${errMsg}\n\nPlease try again! 🌸`);
+      try {
+        const data = await getStoreData();
+        setCategories(data.categories);
+        setProducts(data.products);
+      } catch (_) {}
     }
   };
 
@@ -183,6 +208,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await updateCategoryFn({ data: { oldName, updatedCategory } });
     } catch (err) {
       console.error("Failed to update category in database:", err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to update category: ${errMsg}\n\nPlease try again! 🌸`);
+      try {
+        const data = await getStoreData();
+        setCategories(data.categories);
+        setProducts(data.products);
+      } catch (_) {}
     }
   };
 
@@ -194,6 +226,12 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await updateHeroImagesFn({ data: newImages });
     } catch (err) {
       console.error("Failed to update hero images in database:", err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Failed to update hero images: ${errMsg}\n\nPlease try again! 🌸`);
+      try {
+        const data = await getStoreData();
+        setHeroImages(data.heroImages);
+      } catch (_) {}
     }
   };
 
