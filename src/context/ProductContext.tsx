@@ -80,7 +80,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const addProduct = async (newProduct: Omit<Product, "id"> & { id?: string }) => {
-    const id = newProduct.id || newProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const baseId = newProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const id = newProduct.id || `${baseId}-${Math.floor(1000 + Math.random() * 9000)}`;
     const productWithId = { ...newProduct, id } as Product;
     
     // Optimistic update
