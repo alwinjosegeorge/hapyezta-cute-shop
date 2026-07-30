@@ -222,6 +222,7 @@ export function MobileNav() {
                               price: parseFloat(p.price.replace(/[^\d.]/g, "")),
                               priceString: p.price,
                               img: p.img,
+                              weight: p.weight,
                             });
                             setIsSearchOpen(false);
                             openCart();

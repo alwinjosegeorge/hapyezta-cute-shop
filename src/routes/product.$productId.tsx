@@ -87,6 +87,7 @@ function ProductDetails() {
       priceString: product.price,
       img: product.img,
       color: selectedColor || undefined,
+      weight: product.weight,
       quantity: quantity,
     });
     openCart();
@@ -273,6 +274,7 @@ function ProductDetails() {
                         priceString: product.price,
                         img: product.img,
                         color: selectedColor || undefined,
+                        weight: product.weight,
                         quantity: quantity,
                       });
                       navigate({ to: "/checkout" });

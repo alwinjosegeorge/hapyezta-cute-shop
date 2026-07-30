@@ -21,11 +21,12 @@ export function FavoritesDrawer() {
     // Parse numeric price
     const numericPrice = parseFloat(product.price.replace(/[^\d.]/g, "")) || 0;
     addToCart({
-      id: product.name,
+      id: product.id || product.name,
       name: product.name,
       price: numericPrice,
       priceString: product.price,
       img: product.img,
+      weight: product.weight,
       quantity: 1,
     });
     closeFavorites();

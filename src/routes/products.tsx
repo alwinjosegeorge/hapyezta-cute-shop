@@ -250,6 +250,7 @@ function ProductsList() {
                           price: parseFloat(p.price.replace(/[^\d.]/g, "")),
                           priceString: p.price,
                           img: p.img,
+                          weight: p.weight,
                         });
                         openCart();
                       }}

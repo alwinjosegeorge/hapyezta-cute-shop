@@ -133,7 +133,7 @@ function Checkout() {
 
   const totalWeightGrams = cartItems.reduce((sum, item) => {
     const product = products.find((p) => p.id === item.id);
-    const weight = product?.weight ?? 500;
+    const weight = item.weight ?? product?.weight ?? 500;
     return sum + (weight * item.quantity);
   }, 0);
 
@@ -621,7 +621,14 @@ function Checkout() {
                           {item.name}
                         </h4>
                         <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-0.5">
-                          <span>Qty: {item.quantity}</span>
+                          <span>
+                            Qty: {item.quantity}
+                            {item.quantity > 1 && (
+                              <span className="text-[9px] text-foreground/45 ml-1.5 bg-purple/5 px-1.5 py-0.5 rounded-md font-mono">
+                                {item.quantity} × {item.price} = {item.price * item.quantity}
+                              </span>
+                            )}
+                          </span>
                           {item.color && <span>Color: {item.color}</span>}
                         </div>
                       </div>
