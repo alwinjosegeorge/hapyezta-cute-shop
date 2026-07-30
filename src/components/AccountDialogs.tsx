@@ -232,7 +232,7 @@ export function AccountDialogs() {
   const renderTrackForm = () => {
     return (
       <div className="space-y-4 font-body">
-      <form onSubmit={handleTrackSubmit} className="space-y-3">
+      <form onSubmit={handleTrackOrderSubmit} className="space-y-3">
         <label className="block text-xs font-bold text-purple uppercase tracking-wider text-left">
           Enter Order ID
         </label>
