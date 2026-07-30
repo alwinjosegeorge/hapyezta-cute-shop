@@ -144,7 +144,7 @@ function ProductDetails() {
                <img
                 src={resolveImage(product.img)}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain p-2"
               />
             </div>
             <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-yellow rounded-full -z-10 opacity-60" />
