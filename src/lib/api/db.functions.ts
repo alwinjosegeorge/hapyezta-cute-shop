@@ -127,7 +127,7 @@ export const getStoreData = createServerFn({ method: "POST" })
 // 2. Products CRUD
 export const addProductFn = createServerFn({ method: "POST" })
   .inputValidator(NewProductSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
     const id = input.id || input.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
@@ -154,7 +154,7 @@ export const addProductFn = createServerFn({ method: "POST" })
 
 export const updateProductFn = createServerFn({ method: "POST" })
   .inputValidator(ProductSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
 
     await sql`
@@ -168,7 +168,7 @@ export const updateProductFn = createServerFn({ method: "POST" })
 
 export const deleteProductFn = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
     await sql`DELETE FROM products WHERE id = ${input.id}`;
     return { success: true };
@@ -177,7 +177,7 @@ export const deleteProductFn = createServerFn({ method: "POST" })
 // 3. Categories CRUD
 export const addCategoryFn = createServerFn({ method: "POST" })
   .inputValidator(CategorySchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
     await sql`
       INSERT INTO categories (name, img, color)
@@ -189,7 +189,7 @@ export const addCategoryFn = createServerFn({ method: "POST" })
 
 export const deleteCategoryFn = createServerFn({ method: "POST" })
   .inputValidator(z.object({ name: z.string() }))
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
     // 1. Delete category
     await sql`DELETE FROM categories WHERE name = ${input.name}`;
@@ -206,7 +206,7 @@ export const deleteCategoryFn = createServerFn({ method: "POST" })
 
 export const updateCategoryFn = createServerFn({ method: "POST" })
   .inputValidator(z.object({ oldName: z.string(), updatedCategory: CategorySchema }))
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
 
     // 1. Update category
@@ -224,7 +224,7 @@ export const updateCategoryFn = createServerFn({ method: "POST" })
 // 4. Hero Banner Images CRUD
 export const updateHeroImagesFn = createServerFn({ method: "POST" })
   .inputValidator(z.array(z.string()))
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
 
     // Truncate existing hero images
@@ -251,7 +251,7 @@ export const getOrdersFn = createServerFn({ method: "POST" })
 
 export const createOrderFn = createServerFn({ method: "POST" })
   .inputValidator(OrderSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     await initializeDatabase();
     const sql = getSql();
 
@@ -280,7 +280,7 @@ export const createOrderFn = createServerFn({ method: "POST" })
 
 export const updateOrderStatusFn = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string(), status: z.string() }))
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
     await sql`UPDATE orders SET status = ${input.status} WHERE id = ${input.id}`;
     return { success: true };
@@ -288,7 +288,7 @@ export const updateOrderStatusFn = createServerFn({ method: "POST" })
 
 export const getUserOrdersFn = createServerFn({ method: "POST" })
   .inputValidator(z.object({ phone: z.string() }))
-  .handler(async ({ input }) => {
+  .handler(async ({ data: input }) => {
     const sql = getSql();
     const cleanPhone = input.phone.replace(/\D/g, "");
     
