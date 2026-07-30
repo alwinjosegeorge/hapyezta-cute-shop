@@ -267,7 +267,7 @@ function Checkout() {
           customerEmail: finalizedOrder.customerEmail,
           customerPhone: finalizedOrder.customerPhone,
           items: finalizedOrder.items,
-          cartTotal: finalizedOrder.totalAmount - finalizedOrder.shippingCost,
+          cartTotal: Math.round(finalizedOrder.totalAmount - finalizedOrder.shippingCost),
           shippingAddress: finalizedOrder.shippingAddress,
           shippingCost: finalizedOrder.shippingCost,
           grandTotal: finalizedOrder.totalAmount,
