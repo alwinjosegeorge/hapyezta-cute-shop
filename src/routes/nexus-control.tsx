@@ -127,6 +127,18 @@ function AdminHeader({
   );
 }
 
+const PRESET_COLORS = [
+  { name: "Pink", hex: "#FFC0CB" },
+  { name: "Lavender", hex: "#D1C4E9" },
+  { name: "Mint", hex: "#B2DFDB" },
+  { name: "Sky Blue", hex: "#B3E5FC" },
+  { name: "Yellow", hex: "#FFF9C4" },
+  { name: "Peach", hex: "#FFE0B2" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Beige", hex: "#F5F5DC" },
+  { name: "Black", hex: "#212121" },
+];
+
 function ControlPanel() {
   const { products, categories, addProduct, updateProduct, deleteProduct, addCategory, deleteCategory, updateCategory, heroImages = [], updateHeroImages } = useProducts();
   const [viewMode, setViewMode] = useState<"analytics" | "products" | "track-orders" | "categories" | "customers">("analytics");
@@ -239,6 +251,18 @@ function ControlPanel() {
   const [prodDescription, setProdDescription] = useState("");
   const [prodStockStatus, setProdStockStatus] = useState<"in_stock" | "low_stock" | "sold_out">("in_stock");
   const [prodColors, setProdColors] = useState("");
+  const togglePresetColor = (colorName: string) => {
+    const currentList = prodColors.split(",").map(c => c.trim()).filter(Boolean);
+    const exists = currentList.some(c => c.toLowerCase() === colorName.toLowerCase());
+    
+    let newList;
+    if (exists) {
+      newList = currentList.filter(c => c.toLowerCase() !== colorName.toLowerCase());
+    } else {
+      newList = [...currentList, colorName];
+    }
+    setProdColors(newList.join(", "));
+  };
   const [prodDetails, setProdDetails] = useState("");
   const [prodWeight, setProdWeight] = useState("500");
   const [prodImageSource, setProdImageSource] = useState<"url" | "upload">("upload");
@@ -1687,15 +1711,46 @@ function ControlPanel() {
                         </div>
 
                         {/* Colors */}
-                        <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-purple uppercase tracking-wider block">Colors (comma separated)</label>
-                          <input
-                            type="text"
-                            placeholder="e.g. Lavender, Sweet Pink, Mint Blue"
-                            value={prodColors}
-                            onChange={(e) => setProdColors(e.target.value)}
-                            className="w-full px-4 py-3 rounded-2xl bg-cream/35 border-2 border-purple/10 focus:border-coral outline-none text-sm transition font-body"
-                          />
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-purple uppercase tracking-wider block">Product Colors</label>
+                          
+                          {/* Predefined Colors Grid */}
+                          <div className="flex flex-wrap gap-2 p-2.5 bg-cream/20 rounded-2xl border-2 border-purple/5">
+                            {PRESET_COLORS.map((color) => {
+                              const currentList = prodColors.split(",").map(c => c.trim().toLowerCase()).filter(Boolean);
+                              const isSelected = currentList.includes(color.name.toLowerCase());
+                              return (
+                                <button
+                                  key={color.name}
+                                  type="button"
+                                  onClick={() => togglePresetColor(color.name)}
+                                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
+                                    isSelected 
+                                      ? "border-coral bg-white text-coral shadow-sm scale-105" 
+                                      : "border-transparent bg-white/60 hover:bg-white text-purple/70 hover:text-purple"
+                                  }`}
+                                >
+                                  <span 
+                                    className="w-3 h-3 rounded-full border border-black/10 inline-block shrink-0" 
+                                    style={{ backgroundColor: color.hex }}
+                                  />
+                                  {color.name}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Custom Colors input */}
+                          <div className="space-y-1">
+                            <input
+                              type="text"
+                              placeholder="Or enter custom colors (comma separated, e.g. Rose Gold, Sakura)"
+                              value={prodColors}
+                              onChange={(e) => setProdColors(e.target.value)}
+                              className="w-full px-4 py-3 rounded-2xl bg-cream/35 border-2 border-purple/10 focus:border-coral outline-none text-sm transition font-body"
+                            />
+                            <span className="text-[10px] text-foreground/40 pl-2">Selected: {prodColors || "None"}</span>
+                          </div>
                         </div>
                       </div>
 
