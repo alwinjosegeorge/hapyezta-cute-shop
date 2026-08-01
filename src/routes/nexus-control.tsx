@@ -1164,13 +1164,13 @@ function ControlPanel() {
                     {/* Color */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-purple uppercase tracking-wider block">Theme Color</label>
-                      <div className="flex items-center gap-3 pt-1">
+                      <div className="flex flex-wrap items-center gap-3 pt-1">
                         {[
-                          { val: "var(--teal)", bg: "bg-teal" },
-                          { val: "var(--coral)", bg: "bg-coral" },
-                          { val: "var(--yellow)", bg: "bg-yellow" },
-                          { val: "var(--purple)", bg: "bg-purple" },
-                          { val: "var(--orange)", bg: "bg-orange" },
+                          { val: "var(--teal)", bg: "bg-teal", label: "Teal" },
+                          { val: "var(--coral)", bg: "bg-coral", label: "Coral" },
+                          { val: "var(--yellow)", bg: "bg-yellow", label: "Yellow" },
+                          { val: "var(--purple)", bg: "bg-purple", label: "Purple" },
+                          { val: "var(--orange)", bg: "bg-orange", label: "Orange" },
                         ].map((c) => (
                           <button
                             key={c.val}
@@ -1179,9 +1179,33 @@ function ControlPanel() {
                             className={`w-7 h-7 rounded-full ${c.bg} cursor-pointer transition-all duration-200 border-2 ${
                               catColor === c.val ? "border-purple scale-110 shadow-sm" : "border-transparent hover:scale-105"
                             }`}
-                            title={c.val}
+                            title={c.label}
                           />
                         ))}
+
+                        {/* Custom Color Picker Button */}
+                        <div className="relative w-7 h-7 rounded-full overflow-hidden border-2 border-purple/20 hover:scale-105 transition cursor-pointer" title="Pick Custom Color">
+                          <input
+                            type="color"
+                            value={catColor.startsWith("#") ? catColor : "#FF8A8A"}
+                            onChange={(e) => setCatColor(e.target.value)}
+                            className="absolute inset-0 w-full h-full p-0 border-0 outline-none cursor-pointer scale-150"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Text Input for Custom Color */}
+                      <div className="mt-2.5">
+                        <input
+                          type="text"
+                          placeholder="Or enter custom color code (e.g. #FFB84D)"
+                          value={catColor}
+                          onChange={(e) => setCatColor(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-2xl bg-cream/35 border-2 border-purple/10 focus:border-coral outline-none text-xs transition font-body"
+                        />
+                        <span className="text-[9px] text-foreground/40 pl-2 block mt-1">
+                          Current Color: <span className="font-bold font-mono" style={{ color: catColor.startsWith("var") ? "var(--purple)" : catColor }}>{catColor}</span>
+                        </span>
                       </div>
                     </div>
 
