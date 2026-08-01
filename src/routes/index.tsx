@@ -261,9 +261,14 @@ function Index() {
             {finalProducts.slice(0, 4).map((p) => {
               const catColor = categories.find((c) => c.name === p.category)?.color || "var(--purple)";
               return (
-                <article key={p.name} className="bg-cream rounded-3xl overflow-hidden border-2 border-transparent hover:border-coral transition group flex flex-col justify-between">
-                  <div className="p-3" style={{ backgroundColor: catColor }}>
-                    <div className="relative aspect-square rounded-2xl overflow-hidden bg-white">
+                <article 
+                  key={p.name} 
+                  className="rounded-[2rem] overflow-hidden transition group flex flex-col justify-between p-3 shadow-md hover:scale-[1.02] hover:-rotate-1 duration-300"
+                  style={{ backgroundColor: catColor }}
+                >
+                  <div className="w-full h-full rounded-2xl overflow-hidden bg-white flex flex-col justify-between">
+                    {/* Image container */}
+                    <div className="relative aspect-square overflow-hidden bg-white">
                       {p.tag && (
                         <span className="absolute top-3 left-3 z-10 bg-coral text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                           {p.tag}
@@ -280,33 +285,35 @@ function Index() {
                         <img src={resolveImage(p.img)} alt={p.name} loading="lazy" width={800} height={800} className="w-full h-full object-cover group-hover:scale-105 transition" />
                       </Link>
                     </div>
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col justify-between">
-                    <div>
-                      <Link to="/product/$productId" params={{ productId: p.id }} className="hover:text-coral transition">
-                        <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 min-h-[2.5rem]">{p.name}</h3>
-                      </Link>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="font-display text-lg text-purple">{p.price}</span>
-                        {p.oldPrice && <span className="text-xs text-foreground/40 line-through">{p.oldPrice}</span>}
+
+                    {/* Details container */}
+                    <div className="p-4 flex-1 flex flex-col justify-between bg-cream/30 border-t border-purple/5">
+                      <div>
+                        <Link to="/product/$productId" params={{ productId: p.id }} className="hover:text-coral transition">
+                          <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 min-h-[2.5rem]">{p.name}</h3>
+                        </Link>
+                        <div className="mt-2 flex items-baseline gap-2">
+                          <span className="font-display text-lg text-purple">{p.price}</span>
+                          {p.oldPrice && <span className="text-xs text-foreground/40 line-through">{p.oldPrice}</span>}
+                        </div>
                       </div>
+                      <button
+                        onClick={() => {
+                          addToCart({
+                            id: p.id,
+                            name: p.name,
+                            price: parseFloat(p.price.replace(/[^\d.]/g, "")),
+                            priceString: p.price,
+                            img: p.img,
+                            weight: p.weight,
+                          });
+                          openCart();
+                        }}
+                        className="mt-3 w-full py-2 rounded-full bg-purple text-white text-sm font-semibold hover:bg-coral transition cursor-pointer"
+                      >
+                        Add to cart
+                      </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        addToCart({
-                          id: p.id,
-                          name: p.name,
-                          price: parseFloat(p.price.replace(/[^\d.]/g, "")),
-                          priceString: p.price,
-                          img: p.img,
-                          weight: p.weight,
-                        });
-                        openCart();
-                      }}
-                      className="mt-3 w-full py-2 rounded-full bg-purple text-white text-sm font-semibold hover:bg-coral transition cursor-pointer"
-                    >
-                      Add to cart
-                    </button>
                   </div>
                 </article>
               );
