@@ -28,7 +28,7 @@ function ProductDetails() {
   const { cartCount, openCart, addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { productId } = Route.useParams();
-  const { products } = useProducts();
+  const { products, categories } = useProducts();
   const product = products.find((p) => p.id === productId);
   const router = useRouter();
   const navigate = useNavigate();
@@ -365,52 +365,57 @@ function ProductDetails() {
             {products
               .filter((p) => p.id !== product.id)
               .slice(0, 4)
-              .map((p) => (
-                <article
-                  key={p.name}
-                  className="bg-cream rounded-3xl overflow-hidden border-2 border-transparent hover:border-coral transition group flex flex-col justify-between"
-                >
-                  <div className="relative aspect-square overflow-hidden bg-white">
-                    {p.tag && (
-                      <span className="absolute top-3 left-3 z-10 bg-coral text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                        {p.tag}
-                      </span>
-                    )}
-                    <Link to="/product/$productId" params={{ productId: p.id }} className="block w-full h-full">
-                      <img
-                        src={p.img}
-                        alt={p.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition"
-                      />
-                    </Link>
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col justify-between">
-                    <div>
-                      <Link to="/product/$productId" params={{ productId: p.id }} className="hover:text-coral transition">
-                        <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 min-h-[2.5rem]">
-                          {p.name}
-                        </h3>
-                      </Link>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <span className="font-display text-lg text-purple">{p.price}</span>
-                        {p.oldPrice && (
-                          <span className="text-xs text-foreground/40 line-through">
-                            {p.oldPrice}
+              .map((p) => {
+                const catColor = categories.find((c) => c.name === p.category)?.color || "var(--purple)";
+                return (
+                  <article
+                    key={p.name}
+                    className="bg-cream rounded-3xl overflow-hidden border-2 border-transparent hover:border-coral transition group flex flex-col justify-between"
+                  >
+                    <div className="p-3" style={{ backgroundColor: catColor }}>
+                      <div className="relative aspect-square rounded-2xl overflow-hidden bg-white">
+                        {p.tag && (
+                          <span className="absolute top-3 left-3 z-10 bg-coral text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                            {p.tag}
                           </span>
                         )}
+                        <Link to="/product/$productId" params={{ productId: p.id }} className="block w-full h-full">
+                          <img
+                            src={p.img}
+                            alt={p.name}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition"
+                          />
+                        </Link>
                       </div>
                     </div>
-                    <Link
-                      to="/product/$productId"
-                      params={{ productId: p.id }}
-                      className="mt-3 w-full py-2 rounded-full bg-purple hover:bg-coral text-white text-sm font-semibold text-center transition block"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <Link to="/product/$productId" params={{ productId: p.id }} className="hover:text-coral transition">
+                          <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 min-h-[2.5rem]">
+                            {p.name}
+                          </h3>
+                        </Link>
+                        <div className="mt-2 flex items-baseline gap-2">
+                          <span className="font-display text-lg text-purple">{p.price}</span>
+                          {p.oldPrice && (
+                            <span className="text-xs text-foreground/40 line-through">
+                              {p.oldPrice}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <Link
+                        to="/product/$productId"
+                        params={{ productId: p.id }}
+                        className="mt-3 w-full py-2 rounded-full bg-purple hover:bg-coral text-white text-sm font-semibold text-center transition block"
+                      >
+                        View Details
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
           </div>
         </section>
       </main>
