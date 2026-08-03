@@ -249,7 +249,7 @@ export function Footer() {
       <div className="hidden lg:block bg-[#5B2D91] text-white rounded-2xl pt-14 pb-8 px-8">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-8">
           <div>
-            <div className="flex flex-col items-start bg-white p-2.5 rounded-2xl inline-block shadow-sm">
+            <div className="flex flex-col items-start">
               <Logo size="md" withSlogan={true} className="items-start text-left" />
             </div>
             <p className="mt-3 text-sm text-[#E8DDF8]">
