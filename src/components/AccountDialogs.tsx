@@ -199,6 +199,16 @@ export function AccountDialogs() {
     }
   };
 
+  const handleSwitchToTrack = (orderId?: string) => {
+    setActiveTab("track");
+    setMobileView("track");
+    const targetId = orderId || (trackOrderId ? trackOrderId : (userOrders.length > 0 ? userOrders[0].id : ""));
+    if (targetId) {
+      setTrackOrderId(targetId);
+      performTracking(targetId);
+    }
+  };
+
   const handleTrackOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await performTracking(trackOrderId);
@@ -403,7 +413,12 @@ export function AccountDialogs() {
             const itemCount = order.items?.reduce((acc: number, item: any) => acc + item.quantity, 0) || 0;
             const status = order.status || "pending";
             return (
-              <div key={order.id} className="p-3.5 bg-white rounded-2xl border border-purple/10 space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] text-left">
+              <div
+                key={order.id}
+                onClick={() => handleSwitchToTrack(order.id)}
+                className="p-3.5 bg-white rounded-2xl border border-purple/10 space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.02)] text-left cursor-pointer hover:border-coral/50 hover:shadow-md transition-all duration-200"
+                title="Click to track this order 🌸"
+              >
                 <div className="flex justify-between items-start gap-2">
                   <div>
                     <span className="block font-bold text-purple text-xs">{order.id}</span>
@@ -659,7 +674,7 @@ export function AccountDialogs() {
                       Overview
                     </button>
                     <button
-                      onClick={() => setActiveTab("track")}
+                      onClick={() => handleSwitchToTrack()}
                       className={`flex-1 py-2 px-3 rounded-full transition flex items-center justify-center gap-1 cursor-pointer border-none bg-transparent ${
                         activeTab === "track" ? "bg-white text-coral shadow-sm font-bold" : "hover:text-coral"
                       }`}
@@ -782,7 +797,7 @@ export function AccountDialogs() {
                   {/* Mobile Menu Action List */}
                   <div className="bg-white rounded-2xl p-2 border border-purple/10 shadow-sm space-y-1 text-sm font-body">
                     <button
-                      onClick={() => setMobileView("track")}
+                      onClick={() => handleSwitchToTrack()}
                       className="w-full text-left px-4 py-3 rounded-xl hover:bg-cream hover:text-coral transition font-semibold text-purple cursor-pointer border-none bg-transparent flex items-center gap-2"
                     >
                       <Package className="w-4 h-4 text-purple" />
