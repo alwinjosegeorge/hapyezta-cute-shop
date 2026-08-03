@@ -701,21 +701,6 @@ export function AccountDialogs() {
                           Hi <span className="font-bold text-purple">{profileName}</span>! Welcome back to your kawaii clubhouse. 🌸 We've added fresh stickers and stationery treasures since your last visit.
                         </p>
 
-                        <div className="bg-yellow/10 border-2 border-dashed border-yellow/45 rounded-2xl p-4 flex items-start gap-3">
-                          <Award className="w-9 h-9 text-coral shrink-0 mt-0.5 animate-bounce" />
-                          <div className="space-y-1">
-                            <span className="block text-xs font-bold text-purple uppercase tracking-wider">
-                              Next Club Reward: Free Washi Tape Set 🎀
-                            </span>
-                            <div className="w-full bg-purple/10 h-2.5 rounded-full overflow-hidden mt-1.5">
-                              <div className="bg-gradient-to-r from-coral to-yellow h-full rounded-full w-[80%]" />
-                            </div>
-                            <span className="block text-[10px] text-muted-foreground">
-                              {ordersCount * 50} / 500 Sparkles collected • Just {Math.max(0, 500 - ordersCount * 50)} more points to redeem!
-                            </span>
-                          </div>
-                        </div>
-
                         <div className="flex gap-2">
                           <div className="flex-1 p-3 bg-teal/5 border border-teal/10 rounded-2xl flex items-center gap-2">
                             <Sparkles className="w-4 h-4 text-teal" />
